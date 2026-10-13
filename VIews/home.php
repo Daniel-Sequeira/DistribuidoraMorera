@@ -1,12 +1,15 @@
+<?php /** @var array $data */ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribuidora Morera</title>
+    <title><?php echo $data['tag_page']; ?></title>
 </head>
 <body>
-    <h1>Distribuidora Morera</h1>
-    <h2>Bienvenido a la página principal</h2>
+    <section id="<?php echo $data['page_id'];?>"> 
+    <h1><?php echo $data['page_title']; ?></h1>
+    <p><?php echo $data['page_content']; ?></p>
+    
 </body>
 </html>
