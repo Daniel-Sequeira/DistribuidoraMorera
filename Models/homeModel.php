@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . "/../Libraries/Core/Pgsql.php");
 class homeModel extends Pgsql {
+
     public function __construct(){
        parent::__construct();
     }
@@ -13,8 +14,30 @@ class homeModel extends Pgsql {
         $request_insert = $this->insert($query_insert, $arrData);
         return $request_insert;     
     }
+    
+    public function getUser($id)
+    {
+        $sql = "SELECT * FROM usuarios WHERE id_usuario = $id";
+        $request = $this->select($sql);
+        return $request;
+    }
 
-
+    public function updateUser(int $id, string $nombre_completo)
+    {
+        $sql = "UPDATE usuarios SET nombre_completo = ? WHERE id_usuario = $id";
+        $arrData = array($nombre_completo);
+        $request = $this->update($sql, $arrData);
+        return $request;
+    }
+    //Eliminacion logica de usuarios
+    public function deleteUser(int $id, string $estado)
+    {
+        $sql = "UPDATE usuarios SET estado = ? WHERE id_usuario = $id";
+        $arrData = array($estado);
+        $request = $this->update($sql, $arrData);
+        return $request;
+    }   
+    
 
 
 
@@ -23,4 +46,5 @@ class homeModel extends Pgsql {
 
 
 }
+
 ?>
