@@ -9,3 +9,8 @@
     height: 200px; /* altura uniforme para ambas imágenes */
     object-fit: cover; 
 }
+.app-sidebar__user-avatar{
+    width: 48px;
+    background: gray;
+    padding: 6px;
+}

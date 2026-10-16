@@ -10,6 +10,18 @@ function media()
         return BASE_URL."Assets/";
     }
 
+function headerAdmin($data="")
+{
+    $view_header = "Views/Template/header_Admin.php";
+    require_once($view_header);
+} 
+function footerAdmin($data="")
+{
+    $view_footer = "Views/Template/footer_Admin.php";
+     require_once($view_footer);
+} 
+
+
 //Dar formato a un array
 function dep($data)
 {
@@ -86,6 +98,8 @@ function formatMoney($cantidad)
     $cantidad = number_format($cantidad,2,SPD,SPM);
     return $cantidad;
 }
+
+
 
 
 

@@ -48,7 +48,7 @@
                 <div class="carousel-item active">
                     <img src="<?= media(); ?>images/vecteezy_trucks.jpeg" class="d-block w-100" style="height: 650px; object-fit: cover;" alt="Slide 1">
                     <div class="carousel-caption d-none d-md-block">
-                        <h5>Distribucion y Logística</h5>
+                        <h5>Distribución y Logística</h5>
                         <p>Líderes en la zona norte</p>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                 <div class="carousel-item">
                     <img src="<?= media(); ?>images/vecteezy_vehicle.jpeg" class="d-block w-100" style="height: 650px; object-fit: cover;" alt="Slide 2">
                     <div class="carousel-caption d-none d-md-block">
-                        <h5>Distribucion y Logística</h5>
+                        <h5>Distribución y Logística</h5>
                         <p>Líderes en la zona norte.</p>
                     </div>
                 </div>
