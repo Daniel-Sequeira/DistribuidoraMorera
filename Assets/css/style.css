@@ -1,0 +1,11 @@
+/* Formato carousel */
+.carousel-inner {
+    min-height: 400px; 
+    background-color: #222; 
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 200px; /* altura uniforme para ambas imágenes */
+    object-fit: cover; 
+}

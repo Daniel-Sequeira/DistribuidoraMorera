@@ -5,6 +5,11 @@ function base_url()
     return BASE_URL;
 }
 
+function media()
+    {
+        return BASE_URL."Assets/";
+    }
+
 //Dar formato a un array
 function dep($data)
 {
