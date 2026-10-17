@@ -30,6 +30,13 @@ function dep($data)
     $format .= print_r('</pre>');
     return $format;
 }
+//Modals
+function getModal(string $nameModal, $data)
+{
+    $view_modal = "Views/Template/Modals/{$nameModal}.php";
+    require_once $view_modal;
+}
+
 
 //Limpiar cadenas
 function strClean($strCadena)

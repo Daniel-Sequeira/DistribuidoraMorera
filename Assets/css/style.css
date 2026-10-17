@@ -14,3 +14,20 @@
     background: gray;
     padding: 6px;
 }
+.app-sidebar__toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.25rem; /* Equivalente limpio a 15pt */
+    text-decoration: none; /* Evita subrayados */
+}
+.app-sidebar__toggle::before,
+.app-sidebar__toggle::after {
+    display: none !important;
+    content: none !important;
+}
+/*ícono de Font Awesome conserve su tamaño y color correctamente */
+.app-sidebar__toggle i {
+    font-size: inherit;
+    line-height: 1;
+}
