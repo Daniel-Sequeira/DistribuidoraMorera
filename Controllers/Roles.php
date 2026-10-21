@@ -12,14 +12,16 @@ public function roles()
    $data['tag_page'] = "Roles Usuario";
    $data['page_title'] = "Roles Usuario <small> Distribuidora Morera</small>";
    $data['page_name'] = "roles";
-  
-   
    $this->views->getView($this,"roles",$data);
 }
 
-
-
-
+public function getRoles()
+{
+   $arrData = $this->model->selectRoles();
+   
+   echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+   die();
+}
 
 
 
