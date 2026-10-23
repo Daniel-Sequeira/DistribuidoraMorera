@@ -12,7 +12,6 @@ getModal('modalRoles', $data);
         <button class="btn btn-primary" type="button" onclick="openModal();">
           <i class="fa-solid fa-circle-plus"></i> Nuevo</button>
       </h1>
-      <p>Start a beautiful journey here</p>
     </div>
     <ul class="app-breadcrumb breadcrumb">
       <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>
@@ -28,8 +27,10 @@ getModal('modalRoles', $data);
             <table class="table table-hover table-bordered" id="tableRoles">
               <thead>
                 <tr>
-                  <th>id_rol</th>
-                  <th>nombre_rol</th>
+                  <th>Id_rol</th>
+                  <th>Nombre_rol</th>
+                  <th>Estado</th>
+                  <th>Editar</th>
                 </tr>
               </thead>
               <tbody>
