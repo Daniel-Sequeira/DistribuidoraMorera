@@ -20,7 +20,7 @@
                 <input type="text" id="nombreRolInput" name="nombre_rol" class="form-control" placeholder="Existen 1 Administrador, 2 Ventas, 3 Bodega" maxlength="20">
                 <div class="form-text">El nombre debe ser único y tener máximo 20 caracteres.</div>
               </div>
-               <!--El campo estado es oculto ya que por defecto es true en base de datos al crear un rol nuevo  -->
+              <!--El campo estado es oculto ya que por defecto es true en base de datos al crear un rol nuevo  -->
               <div class="mb-3" id="divEstado" style="display: none;">
                 <label for="listStatus" class="form-label">Estado</label>
                 <select class="form-control" id="listStatus" name="listStatus">
@@ -46,3 +46,4 @@
     </div>
   </div>
 </div>
+

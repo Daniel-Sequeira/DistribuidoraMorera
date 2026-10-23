@@ -2,7 +2,7 @@
 require_once(__DIR__ . "/../Libraries/Core/Pgsql.php");
 class RolesModel extends Pgsql {
 
-  public $strRol;
+   
 
     public function __construct(){
        parent::__construct();

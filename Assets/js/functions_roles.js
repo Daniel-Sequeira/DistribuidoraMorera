@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function(){
         "aProcessing":true,
         "aServerSide":true,
         "language":{
-            "url": "//cdn.datatables.net/plug-ins/1.10.20//i18n/Spanish.json"
+            "url": "https://cdn.datatables.net/plug-ins/1.10.20//i18n/Spanish.json"
         },
         "ajax":{
             "url":""+base_url+"/Roles/getRoles",
@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function(){
         "iDisplayLength":10,
         "order":[[0,"asc"]]
     });
+
     //Nuevo Rol
     var formRol = document.querySelector("#formRol");
     formRol.onsubmit = function(e){
@@ -58,20 +59,65 @@ $('#tableRoles').DataTable();
 
 function openModal() { 
     document.querySelector('#id_rol').value = ""; 
-    document.querySelector('.modal-header').classList.replace('headerUpdate', 'headerRegister');
-    document.querySelector('#btnActionForm').classList.replace('btn-info', 'btn-primary');
+
+    // Ajuste de clases e interfaz
+    let modalHeader = document.querySelector('.modal-header');
+    if (modalHeader.classList.contains('headerUpdate')) {
+        modalHeader.classList.replace('headerUpdate', 'headerRegister');
+    }
+
+    let btnAction = document.querySelector('#btnActionForm');
+    if (btnAction.classList.contains('btn-info')) {
+        btnAction.classList.replace('btn-info', 'btn-primary');
+    }
+
     document.querySelector('#btnText').innerHTML = "Guardar";
     document.querySelector('#titleModal').innerHTML = "Nuevo Rol";
     document.querySelector("#formRol").reset(); 
-    
+
     document.querySelector('#divEstado').style.display = "none";
     document.querySelector('#nombreRolInput').removeAttribute('readonly');
-    
-    $('#modalFormRol').modal('show');
+
+    // Apertura del modal en Bootstrap 5 (Vanilla JS)
+    let modalElement = document.querySelector('#modalFormRol');
+    let modalFormRol = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modalFormRol.show();
 }
+
+document.addEventListener('click', function(e) {
+    let btn = e.target.closest('.btnPermisosRol'); 
+    
+    if(btn) {
+        e.preventDefault(); 
+        let idrol = btn.getAttribute('rl');
+        let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        let ajaxUrl = base_url + '/Permisos/getPermisosRol/' + idrol;
+        
+        request.open("GET", ajaxUrl, true);
+        request.send();
+        
+        request.onreadystatechange = function(){
+            if(request.readyState == 4 && request.status == 200) {
+                
+                // 1. Inyectamos el HTML del modal en el contenedor
+                document.querySelector('#contentAjax').innerHTML = request.responseText;
+                
+                // 2. Buscamos el modal por su ID (OJO: #modalPermisos)
+                let modalElement = document.querySelector('#modalPermisos');
+                
+                if (modalElement) {
+                    // 3. Inicializamos y mostramos
+                    let modalPermisos = bootstrap.Modal.getOrCreateInstance(modalElement);
+                    modalPermisos.show();
+                }
+            }
+        }
+    }
+});
 
 // Función para EDITAR ROL (Delegación de eventos)
 document.addEventListener('click', function(e) {
+    
     let btn = e.target.closest('.btnEditRol'); 
     if(btn) {
         e.preventDefault(); 
@@ -115,3 +161,4 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
