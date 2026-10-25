@@ -10,7 +10,7 @@ require_once("nav_Admin.php");
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Daniel Sequeira"
-    <meta name="theme-color" content="#7181AD">
+    <meta name="theme-color" content="#007bff">
     <title><?= $data['tag_page'] ?></title>
     <!-- Bootstrap 5 CSS CDN-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
