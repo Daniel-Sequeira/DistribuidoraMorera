@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     $('#modalFormRol').modal("hide");
                     formRol.reset();
                     swal("Roles de usuario", objData.msg,"success");
-                    $('#tableRoles').DataTable().ajax.reload();
+                    $('#tableRoles').DataTable().ajax.reload().savePermisos();
                 }else{
                     swal("Error", objData.msg, "error");
                 }
@@ -83,7 +83,7 @@ function openModal() {
     let modalFormRol = bootstrap.Modal.getOrCreateInstance(modalElement);
     modalFormRol.show();
 }
-
+//Levantar modal permisos
 document.addEventListener('click', function(e) {
     let btn = e.target.closest('.btnPermisosRol'); 
     
@@ -99,16 +99,17 @@ document.addEventListener('click', function(e) {
         request.onreadystatechange = function(){
             if(request.readyState == 4 && request.status == 200) {
                 
-                // 1. Inyectamos el HTML del modal en el contenedor
+                //HTML del modal en el contenedor
                 document.querySelector('#contentAjax').innerHTML = request.responseText;
                 
-                // 2. Buscamos el modal por su ID (OJO: #modalPermisos)
+                //Busca el modal por su ID 
                 let modalElement = document.querySelector('#modalPermisos');
                 
                 if (modalElement) {
-                    // 3. Inicializamos y mostramos
+                    //Inicializar y mostrar
                     let modalPermisos = bootstrap.Modal.getOrCreateInstance(modalElement);
                     modalPermisos.show();
+                    document.querySelector('#formPermisos').addEventListener('submit',savePermisos,false);
                 }
             }
         }
@@ -162,3 +163,23 @@ document.addEventListener('click', function(e) {
     }
 });
 
+function savePermisos(event){
+    event.preventDefault();
+    var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    var ajaxUrl = base_url +'/Permisos/setPermisos';
+    var formElement = document.querySelector("#formPermisos");
+    var formData = new FormData(formElement);
+    request.open("POST",ajaxUrl,true);
+    request.send(formData);
+
+    request.onreadystatechange = function(){
+        if(request.readyState == 4 && request.status ==200){
+            var objData = JSON.parse(request.responseText);
+            if(objData.status){
+                swal("Permisos de usuario", objData.msg, "success");
+            }else{
+                swal("Error", objData.msg, "error");
+            }
+        }
+    }
+}

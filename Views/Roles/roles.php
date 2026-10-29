@@ -4,6 +4,7 @@
 headerAdmin($data);
 getModal('modalRoles', $data);
 ?>
+<!--contentAjax viene de funtion roles -->
 <div id="contentAjax"></div>
 <main class="app-content">
   <div class="app-title">

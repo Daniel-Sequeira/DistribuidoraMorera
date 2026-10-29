@@ -34,15 +34,24 @@ class PermisosModel extends Pgsql
     
     public function deletePermisos(int $idrol)
     {
-        $sql = "DELETE FROM permisos WHERE id_rol = $idrol";
-        return $this->delete($sql);
+        $this->intRolid = $idrol;
+        $sql = "DELETE FROM permisos WHERE id_rol = $this->intRolid";
+        $request = $this->delete($sql);
+        return $request;
     }
 
    
     public function insertPermisos(int $idrol, int $idmodulo, int $r, int $w, int $u, int $d)
     {
+        $this->intRolid = $idrol;
+        $this->intModuloid = $idmodulo;
+        $this->r = $r;
+        $this->w = $w;
+        $this->u = $u;
+        $this->d = $d;
         $query_insert = "INSERT INTO permisos(id_rol, id_modulo, r, w, u, d) VALUES(?,?,?,?,?,?)";
-        $arrData = array($idrol, $idmodulo, $r, $w, $u, $d);
-        return $this->insert($query_insert, $arrData);
+        $arrData = array($this->intRolid, $this->intModuloid, $this->r, $this->w, $this->u, $this->d);
+        $request_insert = $this->insert($query_insert, $arrData);
+        return $request_insert;
     }
 }
