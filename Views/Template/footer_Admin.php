@@ -16,7 +16,7 @@
 <!--Data Table plugin-->
 <script type="text/javascript" src="<?= media(); ?>/js/plugins/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="<?= media(); ?>/js/plugins/dataTables.bootstrap.min.js"></script>
-
+<script type="text/javascript" src="<?= media(); ?>/js/plugins/select2.min.js"></script>
 <?php if ($data['page_name'] == "roles"): ?>
   <script src="<?= media(); ?>/js/functions_roles.js"></script>
 <?php endif; ?>

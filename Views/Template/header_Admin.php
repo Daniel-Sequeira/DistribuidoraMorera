@@ -16,6 +16,8 @@ require_once("nav_Admin.php");
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Main y Style personalizado CSS-->
     <link rel="stylesheet" type="text/css" href="<?= media();?>/css/main.css">
+    <link rel="stylesheet" type="text/css" href="<?= media();?>/css/select2-bootstrap-5-theme.min.css">
+      <link rel="stylesheet" type="text/css" href="<?= media();?>/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="<?= media();?>/css/style.css">
   </head>
 

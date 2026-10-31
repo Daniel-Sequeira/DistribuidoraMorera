@@ -28,6 +28,7 @@ getModal('modalUsuarios', $data);
                 <tr>
                   <th>Id_usuario</th>
                   <th>Id_rol</th>
+                  <th>Identificacion</th>
                   <th>Nombre_completo</th>
                   <th>correo</th>
                    <th>password</th>
@@ -39,6 +40,7 @@ getModal('modalUsuarios', $data);
                 <tr>
                     <td>1</td>
                     <td>1</td>
+                    <td>503720273</td>
                     <td>Daniel Sequeira Gaitan</td>
                     <td>danielsequeira22@gmail.com</td>
                     <td>123456</td>

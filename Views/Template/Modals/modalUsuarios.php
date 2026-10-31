@@ -1,4 +1,4 @@
-s<!-- Modal Usuarios-->
+<!-- Modal Usuarios-->
 <div class="modal fade" id="modalFormUsuario" tabindex="-1" aria-labelledby="modalFormUsuarioLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -12,13 +12,19 @@ s<!-- Modal Usuarios-->
                 <div class="tile">
                     <div class="tile-body">
 
-                        <form id="formUsuario" name="formUsuario" class="form-horizontal">
+                        <form id="formUsuario" name="formUsuario" no validate class="form-horizontal">
                             <input type="hidden" id="id_usuario" name="id_usuario" value="">
 
                             <div class="mb-3">
                                 <label for="listRolid" class="form-label">Rol Usuario</label>
+
                                 <select class="form-control" id="listRolid" name="listRolid" required>
                                 </select>
+                            </div>
+                             <div class="mb-3">
+                                <label for="txtIdentificacion" class="form-label">Identificación</label>
+                                <input type="text" id="txtIdentificacion" name="txtIdentificacion" required="" class="form-control" placeholder="Formato 101110111" maxlength="150">
+                                <div class="form-text"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="txtNombre" class="form-label">Nombre completo</label>
@@ -34,10 +40,10 @@ s<!-- Modal Usuarios-->
                                 <label for="txtPassword" class="form-label">Password</label>
                                 <input type="password" id="txtPassword" name="txtPassword" required="" class="form-control" placeholder="Password">
                             </div>
-                            <!--El campo estado es oculto ya que por defecto es true en base de datos al crear un Usuario nuevo  -->
+                            <!--El campo estado es oculto ya que por defecto es true en base de datos al crear un Usuario nuevo -->
                             <div class="mb-3" id="divEstado" style="display: none;">
                                 <label for="listStatus" class="form-label">Estado</label>
-                                <select class="form-control" id="listStatus" name="listStatus">
+                                <select class="form-control selectpicker" id="listStatus" name="listStatus">
                                     <option value="1">Activo</option>
                                     <option value="0">Inactivo</option>
                                 </select>
