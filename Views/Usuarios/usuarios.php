@@ -23,29 +23,21 @@ getModal('modalUsuarios', $data);
       <div class="tile">
         <div class="tile-body">
           <div class="table-responsive">
-            <table class="table table-hover table-bordered" id="tableRoles">
+            <table class="table table-hover table-bordered" id="tableUsuarios">
               <thead>
                 <tr>
                   <th>Id_usuario</th>
                   <th>Id_rol</th>
                   <th>Identificacion</th>
                   <th>Nombre_completo</th>
-                  <th>correo</th>
-                   <th>password</th>
+                  <th>Correo</th>
                   <th>Estado</th>
                   <th>Editar</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                    <td>1</td>
-                    <td>1</td>
-                    <td>503720273</td>
-                    <td>Daniel Sequeira Gaitan</td>
-                    <td>danielsequeira22@gmail.com</td>
-                    <td>123456</td>
-                    <td> estado</td>
-                    <td>acciones</td>
+        
                 </tr>
               </tbody>
             </table>

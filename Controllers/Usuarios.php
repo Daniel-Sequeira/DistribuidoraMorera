@@ -44,6 +44,30 @@ public function setUsuario (){
    die();
 }
 
+public function getUsuarios()
+{
+   $arrData = $this->model->selectUsuarios();
+   for ($i=0; $i< count($arrData); $i++){
+      if($arrData[$i]['estado'] == 1)
+      { 
+         $arrData[$i]['estado'] ='<span class= "badge badge-success">Activo</span>';
+      }else{
+         $arrData[$i]['estado'] ='<span class= "badge badge-danger">Inactivo</span>';
+      }
+
+      $arrData[$i]['opciones']= '<div class="text-center">
+      <button class="btn btn-secondary btn-sm btnViewUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Ver usuario"><i class="fas 
+      fa-key"></i></button>
+      <button class="btn btn-secondary btn-sm btnEditUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Editar usuario"><i class="fas 
+      fa-pencil-alt"></i></button>
+      </div>';
+
+   }
+   
+   echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+   die();
+}
+
 
 
 

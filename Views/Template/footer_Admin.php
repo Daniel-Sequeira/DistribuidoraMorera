@@ -20,7 +20,6 @@
 <?php if ($data['page_name'] == "roles"): ?>
   <script src="<?= media(); ?>/js/functions_roles.js"></script>
 <?php endif; ?>
-
 <?php if ($data['page_name'] == "usuarios"): ?>
   <script src="<?= media(); ?>/js/functions_usuarios.js"></script>
 <?php endif; ?>

@@ -1,6 +1,31 @@
+var tableUsuarios;
 document.addEventListener('DOMContentLoaded', function(){
-    
-    //INICIALIZAR SELECT2
+    tableUsuarios = $('#tableUsuarios').dataTable({
+        "aProcessing":true,
+        "aServerSide":true,
+        "language":{
+            "url": "https://cdn.datatables.net/plug-ins/1.10.20//i18n/Spanish.json"
+        },
+        "ajax":{
+            "url":""+base_url+"/Usuarios/getUsuarios",
+            "dataSrc":""
+        },
+        "columns":[
+            {"data":"id_usuario"},
+            {"data":"id_rol"},
+            {"data":"identificacion"},
+            {"data":"nombre_completo"},
+            {"data":"correo"},
+            {"data":"estado"},
+            {"data":"opciones"}
+        ],
+        "responsive": true,
+        "bDestroy": true,
+        "iDisplayLength":10,
+        "order":[[0,"asc"]]
+    });
+
+     //INICIALIZAR SELECT2
     $('#listRolid').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#modalFormUsuario') 
@@ -12,10 +37,9 @@ document.addEventListener('DOMContentLoaded', function(){
         modalFormUsuario.addEventListener('shown.bs.modal', function () {
             rolesUsuario();
         });
-    }
-
-    // Captura evento submit del formulario
-    var tableUsuarios;
+    }   
+ 
+// Captura evento submit del formulario
     document.addEventListener('submit', function(e) {
     
    if(e.target && e.target.id === 'formUsuario') {
@@ -46,10 +70,9 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(request.readyState == 4 && request.status == 200) {
                     //console.log("Respuesta exitosa: ", request.responseText);
                     var objData = JSON.parse(request.responseText);
-                    if(objData.status)
-                    {
+                    if(objData.status){
                         $('#modalFormUsuario').modal("hide");
-                        formUsuario.reset();
+                        document.querySelector("#formUsuario").reset();
                         swal("Usuarios", objData.msg, "success");
                         tableUsuarios.api().ajax.reload(function(){
 
