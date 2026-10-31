@@ -31,3 +31,8 @@
     font-size: inherit;
     line-height: 1;
 }
+.headerRegister, .header-primary{
+    background : #009688;
+    dolor: #FFF;
+
+}

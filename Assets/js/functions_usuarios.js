@@ -31,14 +31,112 @@ document.addEventListener('DOMContentLoaded', function(){
         dropdownParent: $('#modalFormUsuario') 
     });
 
-    // EVENTO AL ABRIR EL MODAL
+    // Cargar Roles al abrir modal
     var modalFormUsuario = document.getElementById('modalFormUsuario');
     if(modalFormUsuario){
         modalFormUsuario.addEventListener('shown.bs.modal', function () {
             rolesUsuario();
         });
     }   
- 
+
+    //Delegacion de eventos clic en botones que son dinamicos
+    document.addEventListener('click', function(e) {
+    //btnViewUsuario
+    let btnView = e.target.closest('.btnViewUsuario');
+    if(btnView) {
+        e.preventDefault(); 
+        
+        var id_usuario = btnView.getAttribute("us");
+        var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        var ajaxUrl = base_url + '/Usuarios/getUsuario/' + id_usuario;
+        
+        request.open("GET", ajaxUrl, true);
+        request.send();
+
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                var objData = JSON.parse(request.responseText);
+                
+                if(objData.status) {
+                    document.querySelector("#celRol").innerHTML = objData.data.nombre_rol;
+                    document.querySelector("#celIdentificacion").innerHTML = objData.data.identificacion;
+                    document.querySelector("#celNombre").innerHTML = objData.data.nombre_completo;
+                    document.querySelector("#celEmail").innerHTML = objData.data.correo;
+                    
+                    // Convertir el estado a texto visual
+                    let estadoUsuario = (objData.data.estado == true || objData.data.estado == 1) ? 
+                                        '<span class="badge bg-success">Activo</span>' : 
+                                        '<span class="badge bg-danger">Inactivo</span>';
+                    document.querySelector("#celEstado").innerHTML = estadoUsuario;
+                    document.querySelector("#celFechaRegistro").innerHTML = objData.data.creado_en;
+                    //Mostrar el modal en pantalla (Bootstrap 5)
+                    let modalElement = document.querySelector('#modalViewUsuario');
+                    let modalView = bootstrap.Modal.getOrCreateInstance(modalElement);
+                    modalView.show();
+                } else {
+                    swal("Error", objData.msg, "error");
+                }
+            }
+        }
+    }
+});
+
+ // ---- btn edit usuario ---
+document.addEventListener('click', function(e) {
+    
+    let btnEdit = e.target.closest('.btnEditUsuario'); 
+    if(btnEdit) {
+        e.preventDefault(); 
+        
+        //Cambiar apariencia del modal a "Actualizar"
+        document.querySelector('#titleModal').innerHTML = "Actualizar Usuario";
+        document.querySelector('#btnText').innerHTML = "Actualizar";
+        document.querySelector('.modal-header').classList.replace('headerRegister', 'headerUpdate');
+        document.querySelector('#btnActionForm').classList.replace('btn-primary', 'btn-info');
+        
+        //Obtener el ID del usuario del atributo 'us' y asignarlo al input oculto
+        var id_usuario = btnEdit.getAttribute('us');
+        document.querySelector('#id_usuario').value = id_usuario;
+        
+        //Mostrar el div del estado
+        document.querySelector('#divEstado').style.display = "block";
+        //Consulta BD
+        var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        var ajaxUrl = base_url + '/Usuarios/getUsuario/' + id_usuario; 
+        
+        request.open("GET", ajaxUrl, true);
+        request.send();
+        
+        request.onreadystatechange = function(){
+            if(request.readyState == 4 && request.status == 200) {
+                var objData = JSON.parse(request.responseText);
+                
+                if(objData.status) {
+                    //Asignar los valores a los inputs de texto
+                    document.querySelector('#txtIdentificacion').value = objData.data.identificacion;
+                    document.querySelector('#txtNombre').value = objData.data.nombre_completo;
+                    document.querySelector('#txtEmail').value = objData.data.correo;
+                    
+                    // Asignar el select del Rol y actualizar Select2 visualmente
+                    $('#listRolid').val(objData.data.id_rol).trigger('change');
+                    
+                    // El estado seleccionado en la BD 
+                    document.querySelector('#listStatus').value = objData.data.estado;
+                    
+                    // Limpiar el campo de contraseña por seguridad
+                    document.querySelector('#txtPassword').value = "";
+                    
+                    // Mostramos el modal usando jQuery 
+                    $('#modalFormUsuario').modal('show');
+                } else {
+                    swal("Error", objData.msg, "error");
+                }
+            }
+        }
+    }
+});
+
+     
 // Captura evento submit del formulario
     document.addEventListener('submit', function(e) {
     
@@ -68,7 +166,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
             request.onreadystatechange = function(){
                 if(request.readyState == 4 && request.status == 200) {
-                    //console.log("Respuesta exitosa: ", request.responseText);
                     var objData = JSON.parse(request.responseText);
                     if(objData.status){
                         $('#modalFormUsuario').modal("hide");
@@ -127,7 +224,7 @@ function openModal() {
     document.querySelector('#divEstado').style.display = "none";
     document.querySelector('#txtNombre').removeAttribute('readonly');
 
-    // Apertura del modal en Bootstrap 5 (Vanilla JS)
+    // Apertura del modal en Bootstrap 5
     let modalElement = document.querySelector('#modalFormUsuario');
     let modalFormRol = bootstrap.Modal.getOrCreateInstance(modalElement);
     modalFormRol.show();

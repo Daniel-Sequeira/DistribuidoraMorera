@@ -38,7 +38,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="txtPassword" class="form-label">Password</label>
-                                <input type="password" id="txtPassword" name="txtPassword" required="" class="form-control" placeholder="Password">
+                                <input type="password" id="txtPassword" name="txtPassword" class="form-control" placeholder="Password">
                             </div>
                             <!--El campo estado es oculto ya que por defecto es true en base de datos al crear un Usuario nuevo -->
                             <div class="mb-3" id="divEstado" style="display: none;">
@@ -61,6 +61,54 @@
 
                     </div>
                 </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ver un solo Usuario-->
+<div class="modal fade" id="modalViewUsuario" tabindex="-1" aria-labelledby="modalFormUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header header-primary">
+                <h5 class="modal-title" id="titleModal">Datos de usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <table class = "table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td>Rol</td>
+                            <td id= "celRol">Admin</td>
+                        </tr>
+                        <tr>
+                            <td>Identificacion</td>
+                            <td id= "celIdentificacion">503720273</td>
+                        </tr>
+                        <tr>
+                            <td>Nombre</td>
+                            <td id= "celNombre">Daniel Seq</td>
+                        </tr>
+                        <tr>
+                            <td>Email (Usuario)</td>
+                            <td id= "celEmail">daniel@mail.com</td>
+                        </tr>
+                         <tr>
+                            <td>Estado</td>
+                            <td id= "celEstado">Activo</td>
+                        </tr>
+                         <tr>
+                            <td>Fecha Registro</td>
+                            <td id= "celFechaRegistro">Timestamp</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
 
         </div>
