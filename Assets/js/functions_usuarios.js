@@ -1,6 +1,6 @@
 var tableUsuarios;
 document.addEventListener('DOMContentLoaded', function(){
-    tableUsuarios = $('#tableUsuarios').dataTable({
+    tableUsuarios = $('#tableUsuarios').DataTable({
         "aProcessing":true,
         "aServerSide":true,
         "language":{
@@ -19,25 +19,52 @@ document.addEventListener('DOMContentLoaded', function(){
             {"data":"estado"},
             {"data":"opciones"}
         ],
+       
         "responsive": true,
         "bDestroy": true,
         "iDisplayLength":10,
-        "order":[[0,"asc"]]
+        "order":[[0,"asc"]],
+        "dom": 'Bfrtip',
+        "buttons": [
+            {
+                "extend": "copyHtml5",
+                "text": "<i class='fa fa-copy'></i> Copiar",
+                "titleAttr":"Copiar",
+                "className": "btn btn-secondary"
+            },
+            {
+                "extend": "excelHtml5",
+                "text": "<i class='fa fa-file-excel-o'></i> Excel",
+                "titleAttr":"Exportar a Excel",
+                "className": "btn btn-success"
+            },
+            {
+                "extend": "csvHtml5",
+                "text": "<i class='fa fa-file-text-o'></i> CSV",
+                "titleAttr":"Exportar a CSV",
+                "className": "btn btn-info"
+            },
+            {
+                "extend": "pdfHtml5",
+                "text": "<i class='fa fa-file-pdf-o'></i> PDF",
+                "titleAttr":"Exportar a PDF",
+                "className": "btn btn-danger"
+            }
+        ]
+     
     });
 
      //INICIALIZAR SELECT2
     $('#listRolid').select2({
         theme: 'bootstrap-5',
-        dropdownParent: $('#modalFormUsuario') 
+        dropdownParent: $('#modalFormUsuario'), 
+        width: '90%'
     });
 
-    // Cargar Roles al abrir modal
-    var modalFormUsuario = document.getElementById('modalFormUsuario');
-    if(modalFormUsuario){
-        modalFormUsuario.addEventListener('shown.bs.modal', function () {
+    // Cargar Roles y Validaciones al abrir modal
             rolesUsuario();
-        });
-    }   
+            initValidations();
+     
 
     //Delegacion de eventos clic en botones que son dinamicos
     document.addEventListener('click', function(e) {
@@ -154,6 +181,12 @@ document.addEventListener('click', function(e) {
                 swal("Atención", "Todos los campos son obligatorios.", "error");
                 return false;
             }
+            //Comprobar si los imputs no pasan validacion (invalid)
+            let elementsInvalid = document.querySelectorAll('#formUsuario .is-invalid');
+            if(elementsInvalid.length > 0) {
+                swal("Atención", "Por favor, verifique los campos en rojo.", "error");
+                return false;
+            }
 
             var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
             var ajaxUrl = base_url + '/Usuarios/setUsuario';
@@ -171,9 +204,7 @@ document.addEventListener('click', function(e) {
                         $('#modalFormUsuario').modal("hide");
                         document.querySelector("#formUsuario").reset();
                         swal("Usuarios", objData.msg, "success");
-                        tableUsuarios.api().ajax.reload(function(){
-
-                        });
+                        tableUsuarios.ajax.reload();
                     }else{
                         swal("Error",objData.msg, "error");
                     }

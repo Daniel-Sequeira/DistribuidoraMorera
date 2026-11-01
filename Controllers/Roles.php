@@ -45,7 +45,7 @@ public function getSelectRoles()
     $arrData = $this->model->selectRoles();
     if(count($arrData)>0){
         for($i=0; $i< count($arrData); $i++){
-            if($arrData[$i]['estado'] ==1){
+            if($arrData[$i]['estado'] == 1){
                  $htmlOptions .= '<option value="'.$arrData[$i]['id_rol'].'">'.$arrData[$i]['nombre_rol'].'</option>';
             }
            

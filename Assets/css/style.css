@@ -31,8 +31,13 @@
     font-size: inherit;
     line-height: 1;
 }
-.headerRegister, .header-primary{
+.headerRegister{
     background : #009688;
-    dolor: #FFF;
+    color: #FFF;
 
+}
+
+.headerUpdate {
+    background: #222;
+    color:  #FFF;
 }

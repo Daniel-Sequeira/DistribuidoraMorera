@@ -19,6 +19,7 @@ require_once("nav_Admin.php");
     <link rel="stylesheet" type="text/css" href="<?= media();?>/css/select2-bootstrap-5-theme.min.css">
       <link rel="stylesheet" type="text/css" href="<?= media();?>/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="<?= media();?>/css/style.css">
+   
   </head>
 
   <body class="app sidebar-mini">
