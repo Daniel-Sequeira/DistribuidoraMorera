@@ -12,6 +12,7 @@ public function roles()
    $data['tag_page'] = "Roles Usuario";
    $data['page_title'] = "Roles Usuario <small> Distribuidora Morera</small>";
    $data['page_name'] = "roles";
+   $data['page_functions_js'] = "functions_roles.js";
    $this->views->getView($this,"roles",$data);
 }
 
