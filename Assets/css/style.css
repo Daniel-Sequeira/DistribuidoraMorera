@@ -10,9 +10,15 @@
     object-fit: cover; 
 }
 .app-sidebar__user-avatar{
-    width: 48px;
+    width: 38px;
     background: gray;
     padding: 6px;
+}
+.app-sidebar__user-name, 
+.app-sidebar__user-designation {
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 .app-sidebar__toggle {
     display: flex;
