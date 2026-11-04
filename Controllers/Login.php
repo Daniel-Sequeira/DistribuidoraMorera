@@ -89,6 +89,70 @@ public function loginUser()
      
  }
 
+ public function confirmUser(string $params){
+   if(empty($params)){
+      header('Locatio: '.base_url());
+   }else{
+      $arrParams = explode(',',$params);
+      $strEmail = strClean($arrParams[0]);
+      $strToken = strClean($arrParams[1]);
+
+      $arrResponse = $this->model->getUsuario($strEmail,$strToken);
+      if(empty($arrResponse)){
+         header('Location: '.base_url());
+      }else{
+         $data['tag_page'] = "Cambiar contraseña";
+         $data['page_name'] = "cambiar_contrasenia";
+         $data['page_title'] = "Cambiar Contraseña";
+         $data['email'] = $strEmail;
+         $data['token'] = $strToken;
+         $data['id_Usuario'] = $arrResponse['id_usuario'];
+         $data['page_functions_js'] = "functions_login.js";
+          $this->views->getView($this,"cambiar_password",$data);
+      }
+   }
+   die();
+ }
+
+ public function setPassword(){
+   if(empty($_POST['id_Usuario']) || empty($_POST['txtEmail']) || empty($_POST['txtToken']) || 
+      empty($_POST['txtPassword']) || empty($_POST['txtPasswordConfirm'])){
+      $arrResponse = array("status" => false, "msg" => 'Error de datos');
+   }else{
+      $intIdUsuario = intval($_POST['id_Usuario']);
+      $strEmail = strClean($_POST['txtEmail']);
+      $strToken = strClean($_POST['txtToken']);
+      $strPassword = $_POST['txtPassword'];
+      $strPasswordConfirm = $_POST['txtPasswordConfirm'];
+
+      if($strPassword != $strPasswordConfirm){
+         $arrResponse = array("status" => false, "msg" => 'Las contraseñas no son iguales.');
+      }else{
+         $arrResponseUser = $this->model->getUsuario($strEmail,$strToken);
+      if(empty($arrResponseUser)){
+         $arrResponse = array("status" => false, "msg" => 'Error de datos.');
+      }else{
+         $strPassword = hash("SHA256",$strPassword);
+         $requestPass = $this->model->insertPassword($intIdUsuario,$strPassword);
+         if($requestPass){
+            $arrResponse = array("status" => true, "msg" => 'Contraseña actualizada correctamente.');
+         }else{
+            $arrResponse = array("status" => false, "msg" => 'No es posible realizar el proceso.');
+         }
+
+      }
+   } 
+}
+echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
+die();
+} 
+
+
+
+
+
+
+
 
 
 }

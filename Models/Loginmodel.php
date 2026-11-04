@@ -50,6 +50,27 @@ class LoginModel extends Pgsql
         return $request;
     }   
 
+    public function getUsuario(string $email, string $token){
+        $this->strUsuario = $email;
+        $this->strToken = $token;
+        $sql = "SELECT id_usuario FROM usuarios WHERE 
+        correo = '$this->strUsuario' AND token = '$this->strToken' AND estado = '1'";
+        $request = $this->select($sql);   
+        return $request; 
+
+    }
+
+    public function insertPassword(int $idusuario, string $password){
+        $this->intIdUsuario = $idusuario;
+        $this->strPassword = $password;
+        $sql = "UPDATE usuarios SET password_hash = ?, token = ? WHERE id_usuario = $this->intIdUsuario";
+        $arrData = array($this->strPassword,"");
+        $request = $this->update($sql,$arrData);
+        return $request;
+    }
+
+
+
   
 
 
