@@ -54,4 +54,32 @@ class PermisosModel extends Pgsql
         $request_insert = $this->insert($query_insert, $arrData);
         return $request_insert;
     }
+    
+    public function permisosModulo(int $idrol){
+        $this->intRolid = $idrol;
+        $sql = "SELECT p.id_rol,
+        p.id_modulo,
+        m.titulo as modulo,
+        p.r,
+        p.w,
+        p.u,
+        p.d
+        FROM permisos p
+        INNER JOIN modulos m
+        ON p.id_modulo = m.id_modulo
+        WHERE p.id_rol = $this->intRolid";
+    $request = $this->select_all($sql);
+    $arrPermisos = array();
+    for($i=0; $i < count($request); $i++){
+        $arrPermisos[$request[$i]['id_modulo']] = $request[$i];
+    }
+     return $arrPermisos;
+    }
+
+
+
+
+
+
+
 }

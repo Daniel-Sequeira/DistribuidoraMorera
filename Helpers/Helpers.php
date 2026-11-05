@@ -55,6 +55,22 @@ function getModal(string $nameModal, $data)
         return $send;
     }
 
+    function getPermisos(int $idmodulo){
+        require_once("Models/PermisosModel.php");
+        $objPermisos = new PermisosModel();
+        $idrol = $_SESSION['userData']['id_rol'];   
+        $arrPermisos = $objPermisos->permisosModulo($idrol);
+        $permisos = '';
+        $permisosMod = '';
+        if(count($arrPermisos) > 0){
+            $permisos = $arrPermisos;
+            $permisosMod = isset($arrPermisos[$idmodulo]) ? $arrPermisos[$idmodulo] : "";
+        }
+        $_SESSION['permisos'] = $permisos;
+        $_SESSION['permisosMod'] = $permisosMod;
+
+    }
+
 //Limpiar cadenas
 function strClean($strCadena)
 {

@@ -8,6 +8,7 @@ public function __construct(){
    if(empty($_SESSION['login'])){
       header('location: '.base_url().'/login');
    }  
+   getPermisos(2);
 }
 
 public function Usuarios()

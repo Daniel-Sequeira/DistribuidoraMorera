@@ -23,27 +23,27 @@ class Permisos extends Controllers
         if(empty($arrPermisosRol))
             {
                 for($i=0; $i < count($arrModulos); $i++){
+
                     $arrModulos[$i]['permisos'] = $arrPermisos;
                 } 
             }else{
                 for($i=0; $i < count($arrModulos); $i++) {
+                    $arrPermisos = array('r' => 0, 'w' => 0, 'u' => 0, 'd' => 0);
+                    if(isset($arrPermisosRol[$i])){
                     $arrPermisos = array('r' => $arrPermisosRol[$i]['r'],
                                          'w' => $arrPermisosRol[$i]['w'],
                                          'u' => $arrPermisosRol[$i]['u'],
                                          'd' => $arrPermisosRol[$i]['d']
-                    );
-                    if($arrModulos[$i]['id_modulo'] == $arrPermisosRol[$i]['id_modulo'])
-                        {
-                            $arrModulos[$i]['permisos'] = $arrPermisos;
-                        }
+                                        );
+                    }
+                 $arrModulos[$i]['permisos'] = $arrPermisos;
                 }
             }
             $arrRolModulo['modulos'] = $arrModulos;
             $html = getModal("modalPermisos", $arrRolModulo);
-            //dep($arrPermisosRol)
-    }
-     die();
-      
+           
+         }
+     die();     
 }
 
     public function setPermisos()
