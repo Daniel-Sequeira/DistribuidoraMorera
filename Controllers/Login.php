@@ -43,6 +43,7 @@ public function loginUser()
              }
            } 
         }
+        sleep(5);
         echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);   
      }
    die();
@@ -50,6 +51,7 @@ public function loginUser()
 
    public function resetPass(){
    if($_POST){
+      //error_reporting(0);
       if(empty($_POST['txtEmailReset'])){
             $arrResponse = array("status" => false, "msg" => 'Error de datos');
          }else{
@@ -70,11 +72,22 @@ public function loginUser()
 
                $url_recovery = base_url().'/login/confirmUser/'.$strEmail.'/'.$token;
                $requestUpdate =$this->model->setTokenUser($idusuario,$token); 
-
+               $dataUsuario = array('nombreUsuario' => $nombreUsuario,
+                                     'email' => $strEmail,
+                                     'asunto' => 'Recuperar cuenta - '.NOMBRE_REMITENTE,
+                                     'url_recovery' => $url_recovery);
+               
                if($requestUpdate){
+                   $sendEmail = sendEmail($dataUsuario,'email_cambioPassword'); 
+                   if($sendEmail){
                   $arrResponse = array('status' =>true,
                   'msg' => 'Se ha enviado un correo a tu cuenta de correo 
                   electrónico para cambiar tu contraseña.');
+               }else{
+                   $arrResponse = array('status' =>false,
+                  'msg' => 'No es posible realizar el proceso, 
+                  intenta más tarde.');
+               }
                }else{
                   $arrResponse = array('status' =>false,
                   'msg' => 'No es posible realizar el proceso, 
@@ -82,6 +95,7 @@ public function loginUser()
                }
             }
          }
+         sleep(5);
          echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
          }   
       die();
@@ -143,6 +157,7 @@ public function loginUser()
       }
    } 
 }
+sleep(5);
 echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
 die();
 } 

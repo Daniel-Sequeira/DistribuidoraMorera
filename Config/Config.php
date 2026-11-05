@@ -16,5 +16,10 @@ const SPD = "."; //Decimal
 const SPM = ","; //Miles
 const SMONEY = "₡"; 
 
+//Envio de correo
+const NOMBRE_REMITENTE = "Distribuidora Morera";
+const EMAIL_REMITENTE = "danielsequeira22@yahoo.es";
+const NOMBRE_EMPRESA = "Distribuidora Morera";
+const WEB_EMPRESA = "https://www.distribuidoramorera.com";
 
 ?>
