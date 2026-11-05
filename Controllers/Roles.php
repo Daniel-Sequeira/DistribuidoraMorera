@@ -6,12 +6,17 @@ public function __construct(){
    parent::__construct();
    session_start();
    if(empty($_SESSION['login'])){
-      header('location: '.base_url().'/login');
+      header('Location: '.base_url().'/login');
    }  
+   getPermisos(3);
 }
 
 public function roles()
 {
+    if(EMPTY($_SESSION['permisosMod']['r'])){
+        header("Location:".base_url().'dashboard');
+        die();
+    }
    $data['page_id'] = 3;
    $data['tag_page'] = "Roles Usuario";
    $data['page_title'] = "Roles Usuario <small> Distribuidora Morera</small>";
@@ -24,19 +29,23 @@ public function getRoles()
 {
    $arrData = $this->model->selectRoles();
    for ($i=0; $i< count($arrData); $i++){
+    $btnView = '';
+    $btnEdit = '';
       if($arrData[$i]['estado'] == 1)
       { 
          $arrData[$i]['estado'] ='<span class= "badge badge-success">Activo</span>';
       }else{
          $arrData[$i]['estado'] ='<span class= "badge badge-danger">Inactivo</span>';
       }
-
-      $arrData[$i]['opciones']= '<div class="text-center">
-      <button class="btn btn-secondary btn-sm btnPermisosRol" rl="'.$arrData[$i]['id_rol'].'" title= "Permisos"><i class="fas 
-      fa-key"></i></button>
-      <button class="btn btn-primary btn-sm btnEditRol" rl="'.$arrData[$i]['id_rol'].'" title= "Editar"><i class="fas
-      fa-pencil-alt"></i></button>
-      </div>';
+       if($_SESSION['permisosMod']['r']){
+        $btnView = '<button class="btn btn-secondary btn-sm btnPermisosRol" rl="'.$arrData[$i]['id_rol'].'" title= "Permisos"><i class="fas 
+      fa-key"></i></button>';
+      }
+      if($_SESSION['permisosMod']['u']){
+        $btnEdit = '<button class="btn btn-primary btn-sm btnEditRol" rl="'.$arrData[$i]['id_rol'].'" title= "Editar"><i class="fas
+      fa-pencil-alt"></i></button></div>';
+      }
+      $arrData[$i]['opciones']= '<div class="text-center">'.$btnView. ''.$btnEdit.'</div>';
 
    }
    

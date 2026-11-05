@@ -13,6 +13,10 @@ public function __construct(){
 
 public function Usuarios()
 {
+    if(EMPTY($_SESSION['permisosMod']['r'])){
+        header("Location:".base_url().'dashboard');
+        die();
+    }
    $data['tag_page'] = "Usuarios";
    $data['page_title'] = "Usuarios <small>Distribuidora Morera</small>";
    $data['page_name'] = "usuarios";
@@ -74,19 +78,25 @@ public function getUsuarios()
 {
    $arrData = $this->model->selectUsuarios();
    for ($i=0; $i< count($arrData); $i++){
+    $btnView = '';
+    $btnEdit = '';
+    
       if($arrData[$i]['estado'] == 1)
       { 
          $arrData[$i]['estado'] ='<span class= "badge badge-success">Activo</span>';
       }else{
          $arrData[$i]['estado'] ='<span class= "badge badge-danger">Inactivo</span>';
       }
-
-      $arrData[$i]['opciones']= '<div class="text-center">
-      <button class="btn btn-info btn-sm btnViewUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Ver usuario"><i class="fas 
-      fa-eye"></i></button>
-      <button class="btn btn-primary btn-sm btnEditUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Editar usuario"><i class="fas 
-      fa-pencil-alt"></i></button>
-      </div>';
+      
+      if($_SESSION['permisosMod']['r']){
+        $btnView = '<button class="btn btn-info btn-sm btnViewUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Ver usuario"><i class="fas 
+      fa-eye"></i></button>';
+      }
+      if($_SESSION['permisosMod']['u']){
+        $btnEdit = '<button class="btn btn-primary btn-sm btnEditUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Editar usuario"><i class="fas 
+      fa-pencil-alt"></i></button>';
+      }
+      $arrData[$i]['opciones']= '<div class="text-center">'.$btnView. ''.$btnEdit.'</div>';
 
    }
    
