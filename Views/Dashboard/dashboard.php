@@ -42,8 +42,7 @@
           <div class="tile">
             <div class="tile-body"><?= $data['page_title'] ?></div>
             <?php dep($_SESSION['userData']);
-                  dep($_SESSION['permisos']);
-                  dep($_SESSION['permisosMod']);
+                  
             ?>
           </div>
         </div>

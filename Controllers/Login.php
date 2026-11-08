@@ -36,14 +36,15 @@ public function loginUser()
                    $_SESSION['idUser'] = $arrData['id_usuario'];
                    $_SESSION['login'] = true;
                    $arrData =$this->model->sessionlogin($_SESSION['idUser']);
-                   $_SESSION['userData'] = $arrData;
+                   sessionUser($_SESSION['idUser']);
+                    $_SESSION['userData'] = $arrData;
                    $arrResponse = array("status" => true, "msg" => 'ok');
              }else{
                 $arrResponse = array("status" => false, "msg" => 'Cuenta inactiva.');       
              }
            } 
         }
-        sleep(5);
+        //sleep(5);
         echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);   
      }
    die();
@@ -157,7 +158,7 @@ public function loginUser()
       }
    } 
 }
-sleep(5);
+//sleep(5);
 echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
 die();
 } 

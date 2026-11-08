@@ -121,6 +121,51 @@ public function getUsuario(int $id_usuario)
     die();
 }
 
+public function perfil(){
+   $data['tag_page'] = "Perfil";
+   $data['page_title'] = "Perfil de usuario";
+   $data['page_name'] = "perfil";
+   $data['page_functions_js'] = "functions_usuarios.js";
+   $this->views->getView($this,"perfil",$data);
+}
+
+public function putPerfil(){
+   
+   if($_POST){
+    if(empty($_POST['txtIdentificacion']) || empty($_POST['txtNombre']))
+        {
+           $arrResponse = array("status" => false, "msg" => 'Datos Incorrectos.');
+        } else{
+            $idUsuario = isset($_SESSION['idUser']) ? intval($_SESSION['idUser']):0;
+            if($idUsuario === 0) {
+               echo json_encode(['status' => false, 'msg' => 'Error: ID de sesión no válido.']);
+               die();
+           }
+            $strIdentificacion = strClean($_POST['txtIdentificacion']);
+            $strNombre = strClean($_POST['txtNombre']);
+            $strPassword = "";
+            if(!empty($_POST['txtPassword'])){
+                $strPassword = hash("SHA256",$_POST['txtPassword']);
+            }
+            $request_user = $this->model->updatePerfil($idUsuario, $strIdentificacion,$strNombre,$strPassword);
+            if($request_user)
+                {
+                    sessionUser($_SESSION['idUser']);
+                    $arrResponse = array('status' => true, 'msg'=>'Datos Actualizados Correctamente.');
+        
+                }else{
+                    $arrResponse = array('status' => false, 'msg'=>'No es posible almacenar datos.');
+                }
+
+        }
+        echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
+   }
+    die();
+    
+}
+
+
+
 
 
 

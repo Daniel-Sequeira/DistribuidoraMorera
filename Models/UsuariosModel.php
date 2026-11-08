@@ -7,7 +7,7 @@ class UsuariosModel extends Pgsql {
     private $strIdentificacion;
     private $strNombre;
     private $strEmail;
-    private $Password;
+    private $strPassword;
     private $strToken;
 
    
@@ -21,7 +21,7 @@ class UsuariosModel extends Pgsql {
         $this->strIdentificacion= $identificacion;
         $this-> strNombre = $nombre;
         $this->strEmail = $email;
-        $this->Password = $password;
+        $this->strPassword = $password;
         $return = 0;
 
         $sql = "SELECT * FROM  usuarios WHERE
@@ -36,7 +36,7 @@ class UsuariosModel extends Pgsql {
                                 $this->strIdentificacion,
                                 $this-> strNombre,
                                 $this->strEmail,
-                                $this->Password);
+                                $this->strPassword);
                 $request_insert = $this->insert($query_insert,$arrData);
                 $return = $request_insert;
             }else{
@@ -102,6 +102,33 @@ public function updateUsuario(int $idUsuario, string $identificacion, string $no
         $request = "exist"; 
     }
     
+    return $request;
+}
+
+public function updatePerfil(int $idUsuario, string $identificacion,string $nombre,string $password)
+{
+ $this->intIdUsuario = $idUsuario;
+ $this->strIdentificacion = $identificacion;
+ $this->strNombre = $nombre;
+ $this->strPassword = $password;
+ if($this->strPassword != "")
+    {
+        $sql = "UPDATE usuarios SET identificacion = ?, nombre_completo = ?, password_hash = ?
+        WHERE id_usuario = ?";
+        $arrData = array($this->strIdentificacion,
+                         $this->strNombre,
+                         $this->strPassword,
+                         $this->intIdUsuario
+                         );
+    }else{
+        $sql = "UPDATE usuarios SET identificacion = ?, nombre_completo = ?
+        WHERE id_usuario = ?";
+        $arrData = array($this->strIdentificacion,
+                         $this->strNombre,
+                         $this->intIdUsuario
+                         );
+    }
+    $request = $this->update($sql,$arrData);
     return $request;
 }
 

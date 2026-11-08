@@ -70,6 +70,14 @@ function getModal(string $nameModal, $data)
         $_SESSION['permisosMod'] = $permisosMod;
 
     }
+    
+    function sessionUser(int $id_usuario){
+        require_once("Models/LoginModel.php");
+        $objLogin = new LoginModel();
+        $request = $objLogin->sessionLogin($id_usuario);
+        return $request;
+    }
+
 
 //Limpiar cadenas
 function strClean($strCadena)

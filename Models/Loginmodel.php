@@ -29,6 +29,7 @@ class LoginModel extends Pgsql
         INNER JOIN roles r ON u.id_rol = r.id_rol
         WHERE u.id_usuario = '$this->intIdUsuario'";
         $request = $this->select($sql);
+        $_SESSION['userData'] = $request;
         return $request;
 
     }
