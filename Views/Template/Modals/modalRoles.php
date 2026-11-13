@@ -14,7 +14,6 @@
 
             <form id="formRol" name="formRol">
               <input type="hidden" id="id_rol" name="id_rol" value="">
-
               <div class="mb-3">
                 <label for="nombreRolInput" class="form-label">Nombre del Rol</label>
                 <input type="text" id="nombreRolInput" name="nombre_rol" class="form-control" placeholder="Existen 1 Administrador, 2 Ventas, 3 Bodega" maxlength="20">

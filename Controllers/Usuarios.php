@@ -3,8 +3,8 @@
 class Usuarios extends Controllers{
 
 public function __construct(){
+   sessionStart();
    parent::__construct();
-   session_start();
    if(empty($_SESSION['login'])){
       header('location: '.base_url().'/login');
    }  
@@ -45,17 +45,20 @@ public function setUsuario() {
             if($idUsuario == 0) {
                 // Crear nuevo
                 $strPassword = empty($_POST['txtPassword']) ? hash("SHA256", passGenerator()) : hash("SHA256", $_POST['txtPassword']);
+                if($_SESSION['permisosMod']['w']){
                 $request_user = $this->model->insertUsuario($intRol, $strIdentificacion, $strNombre, $strEmail, $strPassword, $intStatus);
                 $option = 1;
-                
+                }
             } else {
                 // Actualizar
                 // Si está vacío al editar, enviamos "" para que el Modelo NO toque la clave
                 $strPassword = empty($_POST['txtPassword']) ? "" : hash("SHA256", $_POST['txtPassword']);
                 
                 // Llamada método updateUsuario del modelo
+                if($_SESSION['permisosMod']['u']){
                 $request_user = $this->model->updateUsuario($idUsuario, $strIdentificacion, $strNombre, $strEmail, $strPassword, $intRol, $intStatus);
                 $option = 2;
+                }
             }
 
             // Respuestas compara tipo dato exacto 
@@ -76,6 +79,7 @@ public function setUsuario() {
 
 public function getUsuarios()
 {
+    if($_SESSION['permisosMod']['r']){
    $arrData = $this->model->selectUsuarios();
    for ($i=0; $i< count($arrData); $i++){
     $btnView = '';
@@ -101,12 +105,14 @@ public function getUsuarios()
    }
    
    echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+    }
    die();
 }
 
 //Un Usuario
-public function getUsuario(int $id_usuario)
+public function getUsuario( $id_usuario)
 {
+    if($_SESSION['permisosMod']['r']){
     $idusuario = intval($id_usuario);
         if($idusuario > 0) {
            $arrData = $this->model->selectUsuario($idusuario);
@@ -118,6 +124,7 @@ public function getUsuario(int $id_usuario)
             }
             echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
         }
+    }
     die();
 }
 
@@ -159,6 +166,7 @@ public function putPerfil(){
 
         }
         echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
+   
    }
     die();
     

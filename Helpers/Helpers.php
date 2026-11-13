@@ -78,6 +78,19 @@ function getModal(string $nameModal, $data)
         return $request;
     }
 
+    function sessionStart(){
+        session_start();
+        $inactive = 1200;
+        if(isset($_SESSION['timeout'])){
+            $session_in = time() - $_SESSION['inicio'];
+            if($session_in > $inactive){
+                header("Location: ".BASE_URL."logout");
+            }
+        }else{
+             header("Location: ".BASE_URL."logout");
+        }
+    }
+
 
 //Limpiar cadenas
 function strClean($strCadena)

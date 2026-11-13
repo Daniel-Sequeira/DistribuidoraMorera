@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         closeOnConfirm: false,
                                     },function(isConfirm){
                                         if(isConfirm){
-                                            window.location = base_url+'/login';
+                                            window.location = base_url+'login';
                                         }
                                     });
                                 }else{

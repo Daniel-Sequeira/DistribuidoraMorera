@@ -3,8 +3,8 @@
 class Roles extends Controllers{
 
 public function __construct(){
+    sessionStart();
    parent::__construct();
-   session_start();
    if(empty($_SESSION['login'])){
       header('Location: '.base_url().'/login');
    }  
@@ -27,6 +27,7 @@ public function roles()
 
 public function getRoles()
 {
+ if($_SESSION['permisosMod']['r']){
    $arrData = $this->model->selectRoles();
    for ($i=0; $i< count($arrData); $i++){
     $btnView = '';
@@ -50,6 +51,7 @@ public function getRoles()
    }
    
    echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+ }
    die();
 }
 
@@ -72,6 +74,7 @@ public function getSelectRoles()
 //Un Rol
 public function getRol(int $idrol)
 {
+  if($_SESSION['permisosMod']['r']){
     $intIdrol = intval($idrol);
     if($intIdrol > 0)
     {
@@ -86,10 +89,12 @@ public function getRol(int $idrol)
         
         echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
     }
+  }
     die();
 }
 
 public function setRol(){
+ if($_SESSION['permisosMod']['w']){
     $strRol = strClean($_POST['nombre_rol']);
     
     // id_rol oculto, Si está vacío, le asigna 0
@@ -117,6 +122,7 @@ public function setRol(){
     }
     
     echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+ }
     die();
 }
 

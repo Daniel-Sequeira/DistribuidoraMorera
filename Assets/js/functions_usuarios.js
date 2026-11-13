@@ -1,4 +1,4 @@
-var tableUsuarios;
+let tableUsuarios;
 document.addEventListener('DOMContentLoaded', function(){
       
     tableUsuarios = $('#tableUsuarios').DataTable({
@@ -74,16 +74,16 @@ document.addEventListener('DOMContentLoaded', function(){
     if(btnView) {
         e.preventDefault(); 
         
-        var id_usuario = btnView.getAttribute("us");
-        var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-        var ajaxUrl = base_url + '/Usuarios/getUsuario/' + id_usuario;
+        let id_usuario = btnView.getAttribute("us");
+        let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        let ajaxUrl = base_url + '/Usuarios/getUsuario/' + id_usuario;
         
         request.open("GET", ajaxUrl, true);
         request.send();
 
         request.onreadystatechange = function() {
             if (request.readyState == 4 && request.status == 200) {
-                var objData = JSON.parse(request.responseText);
+                let objData = JSON.parse(request.responseText);
                 
                 if(objData.status) {
                     document.querySelector("#celRol").innerHTML = objData.data.nombre_rol;
@@ -123,21 +123,21 @@ document.addEventListener('click', function(e) {
         document.querySelector('#btnActionForm').classList.replace('btn-primary', 'btn-info');
         
         //Obtener el ID del usuario del atributo 'us' y asignarlo al input oculto
-        var id_usuario = btnEdit.getAttribute('us');
+        let id_usuario = btnEdit.getAttribute('us');
         document.querySelector('#id_usuario').value = id_usuario;
         
         //Mostrar el div del estado
         document.querySelector('#divEstado').style.display = "block";
         //Consulta BD
-        var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-        var ajaxUrl = base_url + '/Usuarios/getUsuario/' + id_usuario; 
+        let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        let ajaxUrl = base_url + '/Usuarios/getUsuario/' + id_usuario; 
         
         request.open("GET", ajaxUrl, true);
         request.send();
         
         request.onreadystatechange = function(){
             if(request.readyState == 4 && request.status == 200) {
-                var objData = JSON.parse(request.responseText);
+                let objData = JSON.parse(request.responseText);
                 
                 if(objData.status) {
                     //Asignar los valores a los inputs de texto
@@ -172,11 +172,11 @@ document.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Formulario enviado, validando datos...");
 
-            var strRol = $('#listRolid').val(); 
-            var strIdentificacion = document.querySelector('#txtIdentificacion').value;
-            var strNombre = document.querySelector('#txtNombre').value;
-            var strEmail = document.querySelector('#txtEmail').value;
-            var strPassword = document.querySelector('#txtPassword').value;
+            let strRol = $('#listRolid').val(); 
+            let strIdentificacion = document.querySelector('#txtIdentificacion').value;
+            let strNombre = document.querySelector('#txtNombre').value;
+            let strEmail = document.querySelector('#txtEmail').value;
+            let strPassword = document.querySelector('#txtPassword').value;
 
             if(strIdentificacion == '' || strRol == '' || strNombre == '' || strEmail == '') {
                 swal("Atención", "Todos los campos son obligatorios.", "error");
@@ -189,18 +189,18 @@ document.addEventListener('click', function(e) {
                 return false;
             }
 
-            var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-            var ajaxUrl = base_url + '/Usuarios/setUsuario';
+            let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            let ajaxUrl = base_url + '/Usuarios/setUsuario';
             
             //formulario actual
-            var formData = new FormData(e.target);
+            let formData = new FormData(e.target);
 
             request.open("POST", ajaxUrl, true);
             request.send(formData);
 
             request.onreadystatechange = function(){
                 if(request.readyState == 4 && request.status == 200) {
-                    var objData = JSON.parse(request.responseText);
+                    let objData = JSON.parse(request.responseText);
                     if(objData.status){
                         $('#modalFormUsuario').modal("hide");
                         document.querySelector("#formUsuario").reset();
@@ -219,8 +219,8 @@ document.addEventListener('click', function(e) {
 // FUNCIONES EXTERNAS 
 
 function rolesUsuario(){
-    var ajaxUrl = base_url + '/Roles/getSelectRoles';
-    var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    let ajaxUrl = base_url + '/Roles/getSelectRoles';
+    let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     request.open("GET", ajaxUrl, true);
     request.send();
 
@@ -273,10 +273,10 @@ function openModalPerfil(){
     document.addEventListener('submit', function(e) {
    if(e.target && e.target.id === 'formPerfil') {
             e.preventDefault(); 
-            var strIdentificacion = document.querySelector('#txtIdentificacion').value;
-            var strNombre = document.querySelector('#txtNombre').value;
-            var strPassword = document.querySelector('#txtPassword').value;
-            var strPasswordConfirm = document.querySelector('#txtPasswordCOnfirm').value;
+            let strIdentificacion = document.querySelector('#txtIdentificacion').value;
+            let strNombre = document.querySelector('#txtNombre').value;
+            let strPassword = document.querySelector('#txtPassword').value;
+            let strPasswordConfirm = document.querySelector('#txtPasswordCOnfirm').value;
             if(strIdentificacion == '' || strNombre == '') {
                 swal("Atención", "Todos los campos son obligatorios.", "error");
                 return false;
@@ -299,16 +299,16 @@ function openModalPerfil(){
                 return false;
             }
 
-            var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-            var ajaxUrl = base_url + '/Usuarios/putPerfil';
-            var formData = new FormData(e.target);
+            let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            let ajaxUrl = base_url + '/Usuarios/putPerfil';
+            let formData = new FormData(e.target);
 
             request.open("POST", ajaxUrl, true);
             request.send(formData);
             request.onreadystatechange = function(){
                 if(request.readyState != 4) return;
                 if(request.status == 200) {
-                    var objData = JSON.parse(request.responseText);
+                    let objData = JSON.parse(request.responseText);
                     if(objData.status){
                         $('#modalFormPerfil').modal("hide");
                        swal({

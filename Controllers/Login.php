@@ -3,9 +3,9 @@
 class Login extends Controllers{
 
 public function __construct(){
-    session_start();
+   session_start();
    if(isset($_SESSION['login'])){
-      header('location: '.base_url().'/dashboard');
+      header('location: '.base_url().'dashboard');
    }  
    parent::__construct();
 }
@@ -35,6 +35,8 @@ public function loginUser()
                 if($arrData['estado'] == 1){
                    $_SESSION['idUser'] = $arrData['id_usuario'];
                    $_SESSION['login'] = true;
+                   $_SESSION['timeout'] = true;
+                   $_SESSION['inicio'] = time();
                    $arrData =$this->model->sessionlogin($_SESSION['idUser']);
                    sessionUser($_SESSION['idUser']);
                     $_SESSION['userData'] = $arrData;
@@ -71,7 +73,7 @@ public function loginUser()
                $idusuario = $arrData['id_usuario'];
                $nombreUsuario = $arrData['nombre_completo'];
 
-               $url_recovery = base_url().'/login/confirmUser/'.$strEmail.'/'.$token;
+               $url_recovery = base_url().'login/confirmUser/'.$strEmail.'/'.$token;
                $requestUpdate =$this->model->setTokenUser($idusuario,$token); 
                $dataUsuario = array('nombreUsuario' => $nombreUsuario,
                                      'email' => $strEmail,
