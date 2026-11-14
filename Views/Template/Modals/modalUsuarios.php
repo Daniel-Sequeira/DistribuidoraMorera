@@ -85,27 +85,27 @@
                     <tbody>
                         <tr>
                             <td>Rol</td>
-                            <td id="celRol">Admin</td>
+                            <td id="celRol"></td>
                         </tr>
                         <tr>
                             <td>Identificacion</td>
-                            <td id="celIdentificacion">503720273</td>
+                            <td id="celIdentificacion"></td>
                         </tr>
                         <tr>
                             <td>Nombre</td>
-                            <td id="celNombre">Daniel Seq</td>
+                            <td id="celNombre"></td>
                         </tr>
                         <tr>
                             <td>Email (Usuario)</td>
-                            <td id="celEmail">daniel@mail.com</td>
+                            <td id="celEmail"></td>
                         </tr>
                         <tr>
                             <td>Estado</td>
-                            <td id="celEstado">Activo</td>
+                            <td id="celEstado"></td>
                         </tr>
                         <tr>
                             <td>Fecha Registro</td>
-                            <td id="celFechaRegistro">Timestamp</td>
+                            <td id="celFechaRegistro"></td>
                         </tr>
                     </tbody>
                 </table>

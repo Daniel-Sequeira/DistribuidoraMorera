@@ -80,7 +80,7 @@ function getModal(string $nameModal, $data)
 
     function sessionStart(){
         session_start();
-        $inactive = 1200;
+        $inactive = 3600;
         if(isset($_SESSION['timeout'])){
             $session_in = time() - $_SESSION['inicio'];
             if($session_in > $inactive){

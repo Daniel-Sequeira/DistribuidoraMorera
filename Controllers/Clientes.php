@@ -25,6 +25,7 @@ public function Clientes()
 }
 
 public function setCliente(){
+if($_SESSION['permisosMod']['r']){
     //dep($_POST);
     //die();
 if($_POST){
@@ -42,19 +43,18 @@ if($_POST){
             $intStatus = isset($_POST['listStatus']) ? intval($_POST['listStatus']) : 1;
             
             $request_user = "";
-
+            $option = 0;
             if($idCliente == 0) {
                 if($_SESSION['permisosMod']['w']){
                 $request_user = $this->model->insertCliente($strNombre, $strIdentificacion, $strTelefono, $strEmail, $strDireccion,$intStatus);
                 $option = 1;
                 }
             } else {
-                
                 // Llamada método updateCliente del modelo
-               /* if($_SESSION['permisosMod']['u']){
+               if($_SESSION['permisosMod']['u']){
                 $request_user = $this->model->updateCliente($idCliente, $strNombre, $strIdentificacion,$strTelefono , $strEmail, $strDireccion, $intStatus);
                 $option = 2;
-                }*/
+                }
             }
 
             // Respuestas compara tipo dato exacto 
@@ -70,8 +70,51 @@ if($_POST){
         
         echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
     }
+ }
     die();
     
+}
+//Obtener todos los clientes
+public function getClientes()
+{
+    if($_SESSION['permisosMod']['r']){
+   $arrData = $this->model->selectClientes();
+   $canView = $_SESSION['permisosMod']['r'];
+   $canEdit = $_SESSION['permisosMod']['u'];
+   foreach ($arrData as &$cliente) {
+            $id = $cliente['id_cliente'];
+            $esActivo = filter_var($cliente['estado'], FILTER_VALIDATE_BOOLEAN);
+            $cliente['estado'] = ($cliente['estado'] == 1)
+                ? '<span class="badge badge-success">Activo</span>'
+                : '<span class="badge badge-danger">Inactivo</span>';
+
+            $btnView = $canView ? '<button class="btn btn-info btn-sm btnViewCliente" cl="'.$id.'" title="Ver cliente"><i class="fas fa-eye"></i></button> ' : '';
+            $btnEdit = $canEdit ? '<button class="btn btn-primary btn-sm btnEditCliente" cl="'.$id.'" title="Editar cliente"><i class="fas fa-pencil-alt"></i></button>' : '';
+
+            $cliente['opciones'] = '<div class="text-center">' . $btnView . $btnEdit . '</div>';
+        }
+   
+   echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+}
+   die();
+}
+//Obtener un cliente
+public function getCliente( $id_cliente)
+{
+    if($_SESSION['permisosMod']['r']){
+    $idcliente = intval($id_cliente);
+        if($idcliente > 0) {
+           $arrData = $this->model->selectCliente($idcliente);
+           if(empty($arrData))
+            {
+               $arrResponse = array('status' => false, 'msg' => 'Datos no encontrados.');
+            }else{
+                $arrResponse = array('status' => true, 'data' => $arrData);
+            }
+            echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
+        }
+    }
+    die();
 }
 
 

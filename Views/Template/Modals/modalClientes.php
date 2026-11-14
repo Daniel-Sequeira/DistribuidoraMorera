@@ -93,23 +93,27 @@
                         </tr>
                         <tr>
                             <td>Nombre Razón Social</td>
-                            <td id="celNombre">Daniel Seq</td>
+                            <td id="celNombre"></td>
+                        </tr>
+                        <tr>
+                            <td>Teléfono</td>
+                            <td id="celTelefono"></td>
                         </tr>
                         <tr>
                             <td>Email (Cliente)</td>
-                            <td id="celEmail">daniel@mail.com</td>
+                            <td id="celEmail"></td>
                         </tr>
                          <tr>
                             <td>Dirección</td>
-                            <td id="celDireccion">Direccion</td>
+                            <td id="celDireccion"></td>
                         </tr>
                         <tr>
                             <td>Estado</td>
-                            <td id="celEstado">Activo</td>
+                            <td id="celEstado"></td>
                         </tr>
                         <tr>
                             <td>Fecha Registro</td>
-                            <td id="celFechaRegistro">Timestamp</td>
+                            <td id="celFechaRegistro"></td>
                         </tr>
                     </tbody>
                 </table>

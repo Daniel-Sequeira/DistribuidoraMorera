@@ -1,4 +1,5 @@
 <?php
+
 /** @var array $data */
 headerAdmin($data);
 getModal('modalUsuarios', $data);
@@ -7,10 +8,10 @@ getModal('modalUsuarios', $data);
   <div class="app-title">
     <div>
       <h1><i class="fas fa-user-tag"> </i> <?= $data['page_title'] ?>
-      <?php if(!EMPTY($_SESSION['permisosMod']['w'])){ ?>
-        <button class="btn btn-primary" type="button" onclick="openModal();">
-          <i class="fa-solid fa-circle-plus"></i> Nuevo</button>
-      <?php } ?>  
+        <?php if (!empty($_SESSION['permisosMod']['w'])) { ?>
+          <button class="btn btn-primary" type="button" onclick="openModal();">
+            <i class="fa-solid fa-circle-plus"></i> Nuevo</button>
+        <?php } ?>
       </h1>
     </div>
     <ul class="app-breadcrumb breadcrumb">
@@ -18,11 +19,22 @@ getModal('modalUsuarios', $data);
       <li class="breadcrumb-item"><a href="<?= base_url(); ?>usuarios"><?= $data['page_title'] ?></a></li>
     </ul>
   </div>
-  
+
   <div class="row">
     <div class="col-md-12">
       <div class="tile">
         <div class="tile-body">
+          <!--Filtro estado -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="filtroEstado" class="form-label fw-bold">Filtrar por estado:</label>
+              <select id="filtroEstado" class="form-select">
+                <option value="">Todos los usuarios</option>
+                <option value="Activo">Activos</option>
+                <option value="Inactivo">Inactivos</option>
+              </select>
+            </div>
+          </div>
           <div class="table-responsive">
             <table class="table table-striped table-bordered" id="tableUsuarios">
               <thead>
@@ -38,7 +50,7 @@ getModal('modalUsuarios', $data);
               </thead>
               <tbody>
                 <tr>
-        
+
                 </tr>
               </tbody>
             </table>

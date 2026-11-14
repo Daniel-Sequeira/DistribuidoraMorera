@@ -50,9 +50,7 @@ class UsuariosModel extends Pgsql {
         $sql = "SELECT p.id_usuario, p.id_rol,p.identificacion,p.nombre_completo,p.correo,p.estado,
         r.nombre_rol
         FROM usuarios p
-        INNER JOIN roles r
-        ON p.id_rol = r.id_rol 
-        WHERE p.estado != '0' ";
+        INNER JOIN roles r ON p.id_rol = r.id_rol"; 
         $request = $this->select_all($sql);
         return $request;
     }

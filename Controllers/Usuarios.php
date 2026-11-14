@@ -41,7 +41,7 @@ public function setUsuario() {
             $intStatus = isset($_POST['listStatus']) ? intval($_POST['listStatus']) : 1;
             
             $request_user = "";
-
+            $option = 0;
             if($idUsuario == 0) {
                 // Crear nuevo
                 $strPassword = empty($_POST['txtPassword']) ? hash("SHA256", passGenerator()) : hash("SHA256", $_POST['txtPassword']);
@@ -81,28 +81,20 @@ public function getUsuarios()
 {
     if($_SESSION['permisosMod']['r']){
    $arrData = $this->model->selectUsuarios();
-   for ($i=0; $i< count($arrData); $i++){
-    $btnView = '';
-    $btnEdit = '';
-    
-      if($arrData[$i]['estado'] == 1)
-      { 
-         $arrData[$i]['estado'] ='<span class= "badge badge-success">Activo</span>';
-      }else{
-         $arrData[$i]['estado'] ='<span class= "badge badge-danger">Inactivo</span>';
-      }
-      
-      if($_SESSION['permisosMod']['r']){
-        $btnView = '<button class="btn btn-info btn-sm btnViewUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Ver usuario"><i class="fas 
-      fa-eye"></i></button>';
-      }
-      if($_SESSION['permisosMod']['u']){
-        $btnEdit = '<button class="btn btn-primary btn-sm btnEditUsuario" us="'.$arrData[$i]['id_usuario'].'" title= "Editar usuario"><i class="fas 
-      fa-pencil-alt"></i></button>';
-      }
-      $arrData[$i]['opciones']= '<div class="text-center">'.$btnView. ''.$btnEdit.'</div>';
+   $canView = $_SESSION['permisosMod']['r'];
+   $canEdit = $_SESSION['permisosMod']['u'];
+   foreach ($arrData as &$user) {
+            $id = $user['id_usuario'];
 
-   }
+            $user['estado'] = ($user['estado'] == 1)
+                ? '<span class="badge badge-success">Activo</span>'
+                : '<span class="badge badge-danger">Inactivo</span>';
+
+            $btnView = $canView ? '<button class="btn btn-info btn-sm btnViewUsuario" us="'.$id.'" title="Ver usuario"><i class="fas fa-eye"></i></button> ' : '';
+            $btnEdit = $canEdit ? '<button class="btn btn-primary btn-sm btnEditUsuario" us="'.$id.'" title="Editar usuario"><i class="fas fa-pencil-alt"></i></button>' : '';
+
+            $user['opciones'] = '<div class="text-center">' . $btnView . $btnEdit . '</div>';
+        }
    
    echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
     }

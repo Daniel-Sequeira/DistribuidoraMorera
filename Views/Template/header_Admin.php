@@ -1,15 +1,15 @@
-  <?php
+<?php
 /** @var array $data */
 require_once("nav_Admin.php");
 ?>
-  <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
   <head>
     <meta name="description" content="Servicios logísticos y distribución de la zona norte Costa Rica">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Daniel Sequeira"
+    <meta name="author" content="Daniel Sequeira">
     <meta name="theme-color" content="#007bff">
     <title><?= $data['tag_page'] ?></title>
     <!-- Bootstrap 5 CSS CDN-->
