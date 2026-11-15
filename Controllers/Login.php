@@ -98,7 +98,7 @@ public function loginUser()
                }
             }
          }
-         sleep(5);
+         sleep(2);
          echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
          }   
       die();

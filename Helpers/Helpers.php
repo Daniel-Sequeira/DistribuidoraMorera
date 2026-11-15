@@ -91,6 +91,14 @@ function getModal(string $nameModal, $data)
         }
     }
 
+    function uploadImage(array $data, string $name){
+        $url_temp = $data['tmp_name'];
+        $destino  = 'Assets/images/uploads/'.$name;
+        $move = move_uploaded_file($url_temp, $destino);
+        return $move;
+    }
+
+
 
 //Limpiar cadenas
 function strClean($strCadena)

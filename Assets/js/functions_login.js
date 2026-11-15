@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 divLoading.style.display = "flex";
                 var request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-                var ajaxUrl = base_url + '/Login/loginUser';
+                var ajaxUrl = base_url + 'Login/loginUser';
                 var formData = new FormData(formLogin);
                 request.open("POST", ajaxUrl, true);
                 request.send(formData);
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (request.status == 200) {
                         var objData = JSON.parse(request.responseText);
                         if (objData.status) {
-                            window.location = base_url + '/dashboard';
+                            window.location = base_url + 'dashboard';
                         } else {
                             swal("Atención", objData.msg, "error");
                             document.querySelector('#txtPassword').value = "";
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }else{
                             divLoading.style.display = "flex";
                             var request = (window.XMLDocument) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-                            var ajaxUrl = base_url+'/Login/resetPass';
+                            var ajaxUrl = base_url+'Login/resetPass';
                             var formData = new FormData(formRecetPass);
                             request.open("POST",ajaxUrl,true);
                             request.send(formData);
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                         divLoading.style.display = "flex";
                         var request = (window.XMLDocument) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-                        var ajaxUrl = base_url+'/Login/setPassword';
+                        var ajaxUrl = base_url+'Login/setPassword';
                         var formData = new FormData(formCambiarPass);
                         request.open("POST",ajaxUrl,true);
                         request.send(formData);

@@ -24,6 +24,17 @@ getModal('modalEstanterias', $data);
     <div class="col-md-12">
       <div class="tile">
         <div class="tile-body">
+          <!--Filtro estado -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="filtroEstado" class="form-label fw-bold">Filtrar por estado:</label>
+              <select id="filtroEstado" class="form-select">
+                <option value="">Todos los clientes</option>
+                <option value="Activo">Activos</option>
+                <option value="Inactivo">Inactivos</option>
+              </select>
+            </div>
+          </div>
           <div class="table-responsive">
             <table class="table table-hover table-bordered" id="tableEstanterias">
               <thead>

@@ -18,14 +18,14 @@
                                 <div class="col-md-6">
                                      <input type="hidden" id="id_estanteria" name="id_estanteria" value="">
                                         <div class="form-group">
-                                            <label for="codigo_estanteriaInput" class="form-label">Código Estantería<span class="required">*</span></label>
-                                            <input type="text" id="codigo_estanteriaInput" name="codigo_estanteria" class="form-control" placeholder="" maxlength="10">
-                                            <div class="form-text">El cod es alfab ascendente.</div>
+                                            <label for="txtCodigo_estanteria" class="form-label">Código Estantería<span class="required">*</span></label>
+                                            <input type="text" id="txtCodigo_estanteria" name="txtCodigo_estanteria" class="form-control" placeholder="" maxlength="10">
+                                            <div class="form-text">El cod es alfabético ascendente.</div>
                                         </div>
                                          <div class="form-group">
-                                            <label for="descripcionInput" class="form-label">Descripción<span class="required">*</span></label>
-                                            <input type="text" id="descripcionInput" name="descripcion" class="form-control" placeholder="" maxlength="100">
-                                            <div class="form-text">Descrip.</div>
+                                            <label for="txtDescripcion" class="form-label">Descripción<span class="required">*</span></label>
+                                            <input type="text" id="txtDescripcion" name="txtDescripcion" class="form-control" placeholder="" maxlength="100">
+                                            <div class="form-text">Descripción.</div>
                                         </div>
                                         <div class="form-group">
                                             <label for="listStatus" class="form-label">Estado</label>
@@ -42,7 +42,7 @@
                                                 <span class="delPhoto notBlock">X</span>
                                                 <label for="foto"></label>
                                                 <div>
-                                                    <img id="img" src="<?= media(); ?>/images/portada_categoria.png">
+                                                    <img id="img" src="<?= media(); ?>/images/portada_estanteria.png">
                                                 </div>
                                                 </div>
                                                 <div class="upimg">
