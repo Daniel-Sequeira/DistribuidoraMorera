@@ -119,7 +119,7 @@
     border: 1px solid #CCC;
     position: relative;
     cursor: pointer;
-    background: url(../images/portada_categoria.png);
+    background: url(../images/uploads/portada_estanteria.png);
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
@@ -174,4 +174,10 @@
 	width: 175px;
 }
 
-
+#imgEstanteria{
+    text-align :center;
+}
+#imgEstanteria{
+    width: 200px;
+    margin: auto;
+}

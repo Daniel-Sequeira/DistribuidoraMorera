@@ -89,7 +89,7 @@
                        
                         <tr>
                             <td>Identificacion</td>
-                            <td id="celIdentificacion">503720273</td>
+                            <td id="celIdentificacion"></td>
                         </tr>
                         <tr>
                             <td>Nombre Razón Social</td>

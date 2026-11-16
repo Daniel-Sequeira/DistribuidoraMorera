@@ -97,6 +97,9 @@ function getModal(string $nameModal, $data)
         $move = move_uploaded_file($url_temp, $destino);
         return $move;
     }
+    function deleteFile(string $name){
+        unlink('Assets/images/uploads/'.$name);
+    }
 
 
 

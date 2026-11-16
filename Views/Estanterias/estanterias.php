@@ -29,7 +29,7 @@ getModal('modalEstanterias', $data);
             <div class="col-md-3">
               <label for="filtroEstado" class="form-label fw-bold">Filtrar por estado:</label>
               <select id="filtroEstado" class="form-select">
-                <option value="">Todos los clientes</option>
+                <option value="">Todas las Estanterías</option>
                 <option value="Activo">Activos</option>
                 <option value="Inactivo">Inactivos</option>
               </select>

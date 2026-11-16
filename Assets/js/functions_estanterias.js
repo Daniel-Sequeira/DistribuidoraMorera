@@ -20,7 +20,7 @@ tableEstanterias = $('#tableEstanterias').DataTable({
        
         "responsive": true,
         "bDestroy": true,
-        "iDisplayLength":10,
+        "iDisplayLength":5,
         "order":[[0,"asc"]],
         "dom": 'Bfrtip',
         "buttons": [
@@ -101,6 +101,7 @@ tableEstanterias = $('#tableEstanterias').DataTable({
 if(document.querySelector(".delPhoto")){
     var delPhoto = document.querySelector(".delPhoto");
     delPhoto.onclick = function(e) {
+        document.querySelector("#foto_remove").value = 1;
         removePhoto();
     }
 }
@@ -132,7 +133,7 @@ if(document.querySelector(".delPhoto")){
                 formEstanteria.reset();
                 swal("Estanterías", objData.msg, "success");
                 removePhoto();
-                // tableEstanterias.api().ajax.reload();
+                tableEstanterias.api().ajax.reload();
                 }else{
                     swal("Error", objData.msg, "error");
                 }
@@ -143,17 +144,119 @@ if(document.querySelector(".delPhoto")){
 
 },false);
 
+//Ver Una estanteria
+document.addEventListener('click', function(e) {
+    //btnViewEstanteria
+    let btnView = e.target.closest('.btnViewEstanteria');
+    if(btnView) {
+        e.preventDefault(); 
+        
+        let id_estanteria = btnView.getAttribute("cl");
+        let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        let ajaxUrl = base_url + 'Estanterias/getEstanteria/' + id_estanteria;
+        
+        request.open("GET", ajaxUrl, true);
+        request.send();
+
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                let objData = JSON.parse(request.responseText);
+                
+                if(objData.status) {
+                    document.querySelector("#celIdEstanteria").innerHTML = objData.data.id_estanteria;
+                    document.querySelector("#celCodigo_estanteria").innerHTML = objData.data.codigo_estanteria;
+                    document.querySelector("#celDescripcion").innerHTML = objData.data.descripcion;
+                    document.querySelector("#imgEstanteria").src = objData.data.url_portada;
+                    // Convertir el estado a texto visual
+                    let estadoEstanteria = (objData.data.estado == true || objData.data.estado == 1) ? 
+                                        '<span class="badge bg-success">Activo</span>' : 
+                                        '<span class="badge bg-danger">Inactivo</span>';
+                    document.querySelector("#celEstado").innerHTML = estadoEstanteria;
+                    //Mostrar el modal en pantalla (Bootstrap 5)
+                    let modalElement = document.querySelector('#modalViewEstanteria');
+                    let modalView = bootstrap.Modal.getOrCreateInstance(modalElement);
+                    modalView.show();
+                } else {
+                    swal("Error", objData.msg, "error");
+                }
+            }
+        }
+    }
+});
+
+//Editar Una estanteria
+document.addEventListener('click', function(e) {
+    //btnEditEstanteria
+    let btnView = e.target.closest('.btnEditEstanteria');
+    if(btnView) {
+        e.preventDefault(); 
+         //Cambiar apariencia del modal a "Actualizar"
+        document.querySelector('#titleModal').innerHTML = "Actualizar Estantería";
+        document.querySelector('#btnText').innerHTML = "Actualizar";
+        document.querySelector('.modal-header').classList.replace('headerRegister', 'headerUpdate');
+        document.querySelector('#btnActionForm').classList.replace('btn-primary', 'btn-info');
+        
+        let id_estanteria = btnView.getAttribute("cl");
+        let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+        let ajaxUrl = base_url + 'Estanterias/getEstanteria/' + id_estanteria;
+        request.open("GET", ajaxUrl, true);
+        request.send();
+
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                let objData = JSON.parse(request.responseText);
+                
+                if(objData.status) {
+                    document.querySelector("#id_estanteria").value = objData.data.id_estanteria;
+                    document.querySelector('#foto_remove').value = 0;
+
+                    document.querySelector("#txtCodigo_estanteria").value = objData.data.codigo_estanteria;
+                    document.querySelector("#txtDescripcion").value = objData.data.descripcion;
+                    document.querySelector("#foto_actual").value = objData.data.imagen;
+
+                    if(objData.data.status == 1){
+                        document.querySelector("#listStatus").value = 1;
+                    }else{
+                        document.querySelector("#listStatus").value = 0;
+                    }
+                    //Si existe la imagen la asigna y si no lo crea y asigna
+                    if(document.querySelector('#img')){
+                        document.querySelector('#img').src= objData.data.url_portada;
+                    }else{
+                        document.querySelector('.prevPhoto div').innerHTML = "<img id='img' src='"+ objData.data.url_portada+"'>";
+                    }
+                    //Si es imagen por defecto delPhoto no se muestra, de lo contrario permite eliminar foto.
+                    if(objData.data.portada == 'portada_estanteria.png'){
+                         document.querySelector('.delPhoto').classList.add("notBlock");
+                    }else{
+                        document.querySelector('.delPhoto').classList.remove("notBlock");
+                    }
+                    $('#modalFormEstanterias').modal('show');
+                } else {
+                    swal("Error", objData.msg, "error");
+                }
+            }
+        }
+    }
+});
+
+
+
 function removePhoto(){
     document.querySelector('#foto').value ="";
     document.querySelector('.delPhoto').classList.add("notBlock");
-    document.querySelector('#img').remove();
+    if(document.querySelector('#img')){
+      document.querySelector('#img').remove();
+    }
+    
 }
 
 
 initValidations();
 function openModal() { 
     document.querySelector('#id_estanteria').value = ""; 
-
+    document.querySelector('#foto_actual').value = "";
+    document.querySelector('#foto_remove').value = 0;
     // Ajuste de clases e interfaz
     let modalHeader = document.querySelector('.modal-header');
     if (modalHeader.classList.contains('headerUpdate')) {
@@ -175,4 +278,5 @@ function openModal() {
     let modalElement = document.querySelector('#modalFormEstanterias');
     let modalFormEstanteria = bootstrap.Modal.getOrCreateInstance(modalElement);
     modalFormEstanteria.show();
+    removePhoto();
 }

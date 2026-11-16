@@ -46,6 +46,41 @@ class EstanteriasModel extends Pgsql {
         return $request;
     }
 
+    //Obtener Una estanteria
+   public function selectEstanteria(int $id_estanteria)
+{
+  $this->intIdEstanteria = $id_estanteria;
+  $sql = "SELECT * FROM estanterias
+    WHERE id_estanteria = $this->intIdEstanteria";
+ $request = $this->select($sql); 
+ return $request;
+}
+
+public function updateEstanteria(int $id_estanteria, string $codigo_estanteria,string $descripcion,string $portada,int $estado)
+{
+  $this->intIdEstanteria = $id_estanteria;
+  $this->strCodigoEstanteria = $codigo_estanteria;
+  $this->strDescripcion = $descripcion;
+  $this->strPortada = $portada;
+  $this->intStatus =  $estado;
+    
+    $sql = "SELECT * FROM estanterias WHERE codigo_estanteria = '{$this->strCodigoEstanteria}' AND id_estanteria != $this->intIdEstanteria ";
+    $request = $this->select_all($sql);
+    if(empty($request))
+    { 
+     $sql = "UPDATE estanterias SET codigo_estanteria = ?, descripcion = ?, imagen = ?, estado = ? WHERE id_estanteria = ?";
+      $arrData = array($this->strCodigoEstanteria,
+                      $this->strDescripcion,
+                      $this->strPortada,
+                      $this->intStatus,
+                      $this->intIdEstanteria);
+      $request = $this->update($sql,$arrData);
+    }else{
+        
+        $return = "exist";
+    }
+    return $request;
+}
   
 
 

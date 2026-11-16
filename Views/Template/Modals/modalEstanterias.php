@@ -13,10 +13,11 @@
                     <div class="tile-body">
                         <form id="formEstanteria" name="formEstanteria" novalidate class="form-horizontal">
                             <input type="hidden" id="id_estanteria" name="id_estanteria" value="">
+                            <input type="hidden" id="foto_actual" name="foto_actual" value="">
+                             <input type="hidden" id="foto_remove" name="foto_remove" value="0">
                             <p class="text-primary"> Los campos con asterico (<span class="required">*</span>)son obligatorios.</p>
                             <div class="row">
                                 <div class="col-md-6">
-                                     <input type="hidden" id="id_estanteria" name="id_estanteria" value="">
                                         <div class="form-group">
                                             <label for="txtCodigo_estanteria" class="form-label">Código Estantería<span class="required">*</span></label>
                                             <input type="text" id="txtCodigo_estanteria" name="txtCodigo_estanteria" class="form-control" placeholder="" maxlength="10">
@@ -42,7 +43,7 @@
                                                 <span class="delPhoto notBlock">X</span>
                                                 <label for="foto"></label>
                                                 <div>
-                                                    <img id="img" src="<?= media(); ?>/images/portada_estanteria.png">
+                                                    <img id="img" src="<?= media(); ?>images/uploads/portada_estanteria.png">
                                                 </div>
                                                 </div>
                                                 <div class="upimg">
@@ -74,13 +75,13 @@
     </div>
 </div>
 
-<!-- Modal Ver un solo Usuario-->
-<div class="modal fade" id="modalViewCliente" tabindex="-1" aria-labelledby="modalFormClientesLabel" aria-hidden="true">
+<!-- Modal Ver una sola estanteria-->
+<div class="modal fade" id="modalViewEstanteria" tabindex="-1" aria-labelledby="modalFormEstanteriaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
 
             <div class="modal-header headerUpdate">
-                <h5 class="modal-title" id="titleModal">Datos del cliente</h5>
+                <h5 class="modal-title" id="titleModal">Estantería</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -89,28 +90,26 @@
                     <tbody>
                        
                         <tr>
-                            <td>Identificacion</td>
-                            <td id="celIdentificacion">503720273</td>
+                            <td>Id Estantería</td>
+                            <td id="celIdEstanteria"></td>
                         </tr>
                         <tr>
-                            <td>Nombre Razón Social</td>
-                            <td id="celNombre">Daniel Seq</td>
+                            <td>Código Estantería</td>
+                            <td id="celCodigo_estanteria"></td>
                         </tr>
                         <tr>
-                            <td>Email (Cliente)</td>
-                            <td id="celEmail">daniel@mail.com</td>
-                        </tr>
-                         <tr>
-                            <td>Dirección</td>
-                            <td id="celDireccion">Direccion</td>
+                            <td>Descripción</td>
+                            <td id="celDescripcion"></td>
                         </tr>
                         <tr>
                             <td>Estado</td>
-                            <td id="celEstado">Activo</td>
+                            <td id="celEstado"></td>
                         </tr>
-                        <tr>
-                            <td>Fecha Registro</td>
-                            <td id="celFechaRegistro">Timestamp</td>
+                          <tr>
+                            <td>Imagen</td>
+                            <td> 
+                                <img id="imgEstanteria" src="" alt="Portada de estantería" width="150">
+                            </td>
                         </tr>
                     </tbody>
                 </table>
