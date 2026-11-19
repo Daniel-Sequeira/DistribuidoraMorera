@@ -53,9 +53,9 @@
 
          <?php if(!empty($_SESSION['permisos'][5]['r'])){?>
          <li>
-             <a class="app-menu__item" href="<?= base_url(); ?>reportes">
+             <a class="app-menu__item" href="<?= base_url(); ?>proveedores">
                  <i class="app-menu__icon fa fa-file"></i>
-                 <span class="app-menu__label">Reportes</span>
+                 <span class="app-menu__label">Proveedores</span>
              </a>
          </li>
          <?php } ?>

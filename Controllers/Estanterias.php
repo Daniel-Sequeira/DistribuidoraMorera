@@ -59,7 +59,7 @@ public function setEstanteria(){
               }
             }else{
                //actualizar
-               if(EMPTY($_SESSION['permisosMod']['u'])){
+               if(!EMPTY($_SESSION['permisosMod']['u'])){
                   If($nombre_foto == ''){
                      if($_POST['foto_actual'] != 'portada_estanteria.png'&& $_POST['foto_remove'] == 0){
                         $imgPortada = $_POST['foto_actual'];
@@ -97,29 +97,33 @@ public function setEstanteria(){
     die();  
 }
 
-//Obtener todas los Estanterias
+// Obtener todas las Estanterías
 public function getEstanterias()
 {
-    if($_SESSION['permisosMod']['r']){
-   $arrData = $this->model->selectEstanterias();
-   $canView = $_SESSION['permisosMod']['r'];
-   $canEdit = $_SESSION['permisosMod']['u'];
-   foreach ($arrData as &$estanteria) {
+    if (!empty($_SESSION['permisosMod']['r'])) {
+        $arrData = $this->model->selectEstanterias();
+        $canView = !empty($_SESSION['permisosMod']['r']);
+        $canEdit = !empty($_SESSION['permisosMod']['u']);
+
+        foreach ($arrData as &$estanteria) {
             $id = $estanteria['id_estanteria'];
             $esActivo = filter_var($estanteria['estado'], FILTER_VALIDATE_BOOLEAN);
-            $estanteria['estado'] = ($estanteria['estado'] == 1)
-                ? '<span class="badge badge-success">Activo</span>'
-                : '<span class="badge badge-danger">Inactivo</span>';
 
-            $btnView = $canView ? '<button class="btn btn-info btn-sm btnViewEstanteria" cl="'.$id.'" title="Ver estanteria"><i class="fas fa-eye"></i></button> ' : '';
-            $btnEdit = $canEdit ? '<button class="btn btn-primary btn-sm btnEditEstanteria" cl="'.$id.'" title="Editar estanteria"><i class="fas fa-pencil-alt"></i></button>' : '';
+            $estanteria['estado'] = $esActivo
+                ? '<span class="badge bg-success">Activo</span>'
+                : '<span class="badge bg-danger">Inactivo</span>';
+
+            $btnView = $canView ? '<button class="btn btn-info btn-sm btnViewEstanteria" cl="' . $id . '" title="Ver estanteria"><i class="fas fa-eye"></i></button> ' : '';
+            $btnEdit = $canEdit ? '<button class="btn btn-primary btn-sm btnEditEstanteria" cl="' . $id . '" title="Editar estanteria"><i class="fas fa-pencil-alt"></i></button>' : '';
 
             $estanteria['opciones'] = '<div class="text-center">' . $btnView . $btnEdit . '</div>';
         }
-   
-   echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
-}
-   die();
+        unset($estanteria);
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+    }
+    die();
 }
 
 //Una estanteria

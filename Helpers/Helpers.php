@@ -4,17 +4,18 @@ function base_url()
 {
     return BASE_URL;
 }
-
+//Url acceso a archivos assets
 function media()
     {
         return BASE_URL."Assets/";
     }
-
+//Asignar los template header
 function headerAdmin($data="")
 {
     $view_header = "Views/Template/header_Admin.php";
     require_once($view_header);
 } 
+//Asignar los template footer
 function footerAdmin($data="")
 {
     $view_footer = "Views/Template/footer_Admin.php";
@@ -54,7 +55,7 @@ function getModal(string $nameModal, $data)
         $send = mail($emailDestino, $asunto, $mensaje, $de);
         return $send;
     }
-
+     //obtener permisos de acciones CRUD
     function getPermisos(int $idmodulo){
         require_once("Models/PermisosModel.php");
         $objPermisos = new PermisosModel();
@@ -70,14 +71,14 @@ function getModal(string $nameModal, $data)
         $_SESSION['permisosMod'] = $permisosMod;
 
     }
-    
+    //Sesion usuario
     function sessionUser(int $id_usuario){
         require_once("Models/LoginModel.php");
         $objLogin = new LoginModel();
         $request = $objLogin->sessionLogin($id_usuario);
         return $request;
     }
-
+    //Variable session y duracion en sistema
     function sessionStart(){
         session_start();
         $inactive = 3600;
@@ -90,13 +91,14 @@ function getModal(string $nameModal, $data)
              header("Location: ".BASE_URL."logout");
         }
     }
-
+    //subir imagen a carpeta /uploads
     function uploadImage(array $data, string $name){
         $url_temp = $data['tmp_name'];
         $destino  = 'Assets/images/uploads/'.$name;
         $move = move_uploaded_file($url_temp, $destino);
         return $move;
     }
+    //eliminar archivos imagenes
     function deleteFile(string $name){
         unlink('Assets/images/uploads/'.$name);
     }

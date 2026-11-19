@@ -129,11 +129,17 @@ if(document.querySelector(".delPhoto")){
 
                if(objData.status)
             {
-                $('#modalFormEstanterias').modal('hide');
+                // Cerrar modal 
+                let modalElement = document.querySelector('#modalFormEstanterias');
+                let modalForm = bootstrap.Modal.getInstance(modalElement);
+                if (modalForm) {
+                    modalForm.hide();
+                }
+
                 formEstanteria.reset();
                 swal("Estanterías", objData.msg, "success");
                 removePhoto();
-                tableEstanterias.api().ajax.reload();
+                tableEstanterias.ajax.reload(null, false);
                 }else{
                     swal("Error", objData.msg, "error");
                 }
@@ -168,7 +174,7 @@ document.addEventListener('click', function(e) {
                     document.querySelector("#celDescripcion").innerHTML = objData.data.descripcion;
                     document.querySelector("#imgEstanteria").src = objData.data.url_portada;
                     // Convertir el estado a texto visual
-                    let estadoEstanteria = (objData.data.estado == true || objData.data.estado == 1) ? 
+                    let estadoEstanteria = (objData.data.estado === true || objData.data.estado === 't' || objData.data.estado == 1) ?
                                         '<span class="badge bg-success">Activo</span>' : 
                                         '<span class="badge bg-danger">Inactivo</span>';
                     document.querySelector("#celEstado").innerHTML = estadoEstanteria;
@@ -184,19 +190,19 @@ document.addEventListener('click', function(e) {
     }
 });
 
-//Editar Una estanteria
+// Editar una estantería
 document.addEventListener('click', function(e) {
-    //btnEditEstanteria
-    let btnView = e.target.closest('.btnEditEstanteria');
-    if(btnView) {
-        e.preventDefault(); 
-         //Cambiar apariencia del modal a "Actualizar"
+    let btnEdit = e.target.closest('.btnEditEstanteria');
+    if (btnEdit) {
+        e.preventDefault();
+
+        // Cambiar apariencia del modal a "Actualizar"
         document.querySelector('#titleModal').innerHTML = "Actualizar Estantería";
         document.querySelector('#btnText').innerHTML = "Actualizar";
         document.querySelector('.modal-header').classList.replace('headerRegister', 'headerUpdate');
         document.querySelector('#btnActionForm').classList.replace('btn-primary', 'btn-info');
-        
-        let id_estanteria = btnView.getAttribute("cl");
+
+        let id_estanteria = btnEdit.getAttribute("cl");
         let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
         let ajaxUrl = base_url + 'Estanterias/getEstanteria/' + id_estanteria;
         request.open("GET", ajaxUrl, true);
@@ -205,8 +211,8 @@ document.addEventListener('click', function(e) {
         request.onreadystatechange = function() {
             if (request.readyState == 4 && request.status == 200) {
                 let objData = JSON.parse(request.responseText);
-                
-                if(objData.status) {
+
+                if (objData.status) {
                     document.querySelector("#id_estanteria").value = objData.data.id_estanteria;
                     document.querySelector('#foto_remove').value = 0;
 
@@ -214,29 +220,34 @@ document.addEventListener('click', function(e) {
                     document.querySelector("#txtDescripcion").value = objData.data.descripcion;
                     document.querySelector("#foto_actual").value = objData.data.imagen;
 
-                    if(objData.data.status == 1){
+                    // Leer 'estado'
+                    if (objData.data.estado === true || objData.data.estado === 't' || objData.data.estado == 1) {
                         document.querySelector("#listStatus").value = 1;
-                    }else{
+                    } else {
                         document.querySelector("#listStatus").value = 0;
                     }
-                    //Si existe la imagen la asigna y si no lo crea y asigna
-                    if(document.querySelector('#img')){
-                        document.querySelector('#img').src= objData.data.url_portada;
-                    }else{
-                        document.querySelector('.prevPhoto div').innerHTML = "<img id='img' src='"+ objData.data.url_portada+"'>";
+
+                    // Asignar imagen actual
+                    if (document.querySelector('#img')) {
+                        document.querySelector('#img').src = objData.data.url_portada;
+                    } else {
+                        document.querySelector('.prevPhoto div').innerHTML = "<img id='img' src='" + objData.data.url_portada + "'>";
                     }
-                    //Si es imagen por defecto delPhoto no se muestra, de lo contrario permite eliminar foto.
-                    if(objData.data.portada == 'portada_estanteria.png'){
-                         document.querySelector('.delPhoto').classList.add("notBlock");
-                    }else{
+
+                    if (objData.data.imagen == 'portada_estanteria.png') {
+                        document.querySelector('.delPhoto').classList.add("notBlock");
+                    } else {
                         document.querySelector('.delPhoto').classList.remove("notBlock");
                     }
-                    $('#modalFormEstanterias').modal('show');
+
+                    let modalElement = document.querySelector('#modalFormEstanterias');
+                    let modalForm = bootstrap.Modal.getOrCreateInstance(modalElement);
+                    modalForm.show();
                 } else {
                     swal("Error", objData.msg, "error");
                 }
             }
-        }
+        };
     }
 });
 
@@ -252,7 +263,7 @@ function removePhoto(){
 }
 
 
-initValidations();
+
 function openModal() { 
     document.querySelector('#id_estanteria').value = ""; 
     document.querySelector('#foto_actual').value = "";

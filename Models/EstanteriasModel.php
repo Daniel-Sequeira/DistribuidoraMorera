@@ -63,6 +63,7 @@ public function updateEstanteria(int $id_estanteria, string $codigo_estanteria,s
   $this->strDescripcion = $descripcion;
   $this->strPortada = $portada;
   $this->intStatus =  $estado;
+
     
     $sql = "SELECT * FROM estanterias WHERE codigo_estanteria = '{$this->strCodigoEstanteria}' AND id_estanteria != $this->intIdEstanteria ";
     $request = $this->select_all($sql);
