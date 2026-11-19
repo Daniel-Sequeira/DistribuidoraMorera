@@ -59,6 +59,10 @@
              </a>
          </li>
          <?php } ?>
+         <?php if(!empty($_SESSION['permisos'][1]['r'])){?>
+         <li><a class="app-menu__item" href="<?= base_url(); ?>movimientos"><i class="app-menu__icon fa fa-dashboard"></i><span class="app-menu__label">
+                     Movimientos Ent/Sal</span></a></li>
+        <?php } ?>             
 
          <li>
             <a class="app-menu__item" href="<?= base_url(); ?>logout">

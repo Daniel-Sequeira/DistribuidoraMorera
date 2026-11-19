@@ -68,6 +68,21 @@ class Pgsql extends Conexion
         return $del;
     }
 
+    public function beginTransaction()
+    {
+        return $this->conexion->beginTransaction();
+    }
+
+    public function commit()
+    {
+        return $this->conexion->commit();
+    }
+
+    public function rollBack()
+    {
+        return $this->conexion->rollBack();
+    }
+
 
 
 }
