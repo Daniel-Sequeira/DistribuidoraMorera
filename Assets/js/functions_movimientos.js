@@ -248,9 +248,8 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 }, false);
 
-// =========================================================================
+
 // FUNCIONES DE GESTIÓN DE LISTA PREVIA DE VENTAS (ESTADO 1 - CONGELADO)
-// =========================================================================
 
 function cargarListaPreviaVentas(idCliente) {
     fetch(base_url + 'Movimientos/getListaVentas/' + idCliente)

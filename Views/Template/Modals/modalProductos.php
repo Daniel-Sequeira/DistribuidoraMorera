@@ -81,7 +81,12 @@
                                                 <label for="txtLote" class="form-label">Código de Lote Inicial <span class="required">*</span></label>
                                                 <input type="text" id="txtLote" name="txtLote" class="form-control" placeholder="Ej. LOTE-001" maxlength="30" required>
                                             </div>
-
+                                            <div class="col-md-6 mb-3">
+                                                    <label for="txtFechaVencimiento" class="form-label">Fecha Vencimiento</label>
+                                                    <input type="date" id="txtFechaVencimiento" name="txtFechaVencimiento" class="form-control">
+                                                    <div class="form-text">Opcional si no perece.</div>
+                                                </div>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <label for="txtCosto" class="form-label">Costo Unitario/Entrada <span class="required">*</span></label>
@@ -191,6 +196,7 @@
                             <tr>
                                 <th>Código Lote</th>
                                 <th>Fecha Ingreso</th>
+                                <th>Vencimiento</th>
                                 <th>Costo Unit.</th>
                                 <th>Cant. Inicial</th>
                                 <th>Disponible</th>

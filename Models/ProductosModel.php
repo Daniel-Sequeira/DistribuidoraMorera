@@ -54,10 +54,11 @@ class ProductosModel extends Pgsql
                     cantidad_inicial,
                     cantidad_disponible,
                     costo_unitario,
-                    TO_CHAR(fecha_ingreso, 'DD/MM/YYYY HH24:MI') AS fecha_ingreso
+                    TO_CHAR(fecha_ingreso, 'DD/MM/YYYY HH24:MI') AS fecha_ingreso,
+                    TO_CHAR(fecha_vencimiento, 'YYYY-MM-DD') AS fecha_vencimiento
                 FROM producto_lotes
                 WHERE id_producto = $idproducto AND cantidad_disponible > 0
-                ORDER BY fecha_ingreso ASC, id_lote ASC";
+                ORDER BY fecha_vencimiento ASC NULLS LAST, fecha_ingreso ASC, id_lote ASC";
         return $this->select_all($sql);
     }
 
@@ -72,7 +73,8 @@ class ProductosModel extends Pgsql
         int $estado,
         string $codigoLote,
         float $costoUnitario,
-        int $idUsuario
+        int $idUsuario,
+        ?string $fechaVencimiento = null
     ) {
         $sqlCheck = "SELECT id_producto FROM productos WHERE codigo = '$codigo'";
         $requestCheck = $this->select_all($sqlCheck);
@@ -88,8 +90,8 @@ class ProductosModel extends Pgsql
 
         if ($idProducto > 0) {
             // 2. Insertar primer lote en cola FIFO
-            $queryLote = "INSERT INTO producto_lotes (id_producto, codigo_lote, cantidad_inicial, cantidad_disponible, costo_unitario, precio_venta_sugerido, estado)
-                          VALUES (?, ?, ?, ?, ?, ?, 1)";
+            $queryLote = "INSERT INTO producto_lotes (id_producto, codigo_lote, cantidad_inicial, cantidad_disponible, costo_unitario, precio_venta_sugerido,fecha_vencimiento ,estado)
+                          VALUES (?, ?, ?, ?, ?, ?,?, 1)";
             $arrLote = array($idProducto, $codigoLote, $stock, $stock, $costoUnitario, $precio);
             $idLote = $this->insert($queryLote, $arrLote);
 

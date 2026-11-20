@@ -20,6 +20,15 @@ public function dashboard()
    $data['page_title'] = "Dashboard Distribuidora Morera";
    $data['page_name'] = "dashboard";
    $data['page_functions_js'] = "functions_dashboard.js";
+   $data['usuarios'] = $this->model->cantUsuarios();
+   $data['clientes'] = $this->model->cantClientes();
+   $data['productos'] = $this->model->cantProductos();
+   $data['movimientos'] = $this->model->cantMovimientosPend();
+   $data['ultimosMovimientos'] = $this->model->ultimosMovimientos();
+   //dep($data['ultimosMovimientos']); exit;
+  
+  
+  
    $this->views->getView($this,"dashboard",$data);
 }
 

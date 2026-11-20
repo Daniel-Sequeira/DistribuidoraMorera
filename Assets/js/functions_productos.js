@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 3. Cargar selectores de Proveedores y Estanterías al iniciar
     fntGetSelects();
 
-    // 4. Guardar Nuevo Producto (con Lote Inicial FIFO) o Actualizar Producto
+    // 4. Guardar Nuevo Producto (con Lote Inicial) o Actualizar Producto
     let formProducto = document.querySelector("#formProducto");
     if (formProducto) {
         formProducto.onsubmit = function (e) {
@@ -167,7 +167,7 @@ function fntGetSelects() {
     }
 }
 
-// Ver Detalle de Producto y sus Lotes Activos (Orden FIFO)
+// Ver Detalle de Producto y sus Lotes Activos (Orden FEFO / FIFO)
 document.addEventListener('click', function (e) {
     let btnView = e.target.closest('.btnViewProducto');
     if (btnView) {
@@ -201,7 +201,7 @@ document.addEventListener('click', function (e) {
                         : '<span class="badge bg-danger">Inactivo</span>';
                     document.querySelector("#celEstado").innerHTML = estadoProducto;
 
-                    // Renderizar tabla de lotes activos ordenados por fecha_ingreso ASC (FIFO)
+                    // <--- CAMBIO 1: Renderizar tabla de lotes con columna Vencimiento (6 columnas)
                     let tbodyLotes = document.querySelector("#tableLotesActivos");
                     tbodyLotes.innerHTML = "";
 
@@ -210,11 +210,30 @@ document.addEventListener('click', function (e) {
                             let badgeFifo = (index === 0)
                                 ? ' <span class="badge bg-warning text-dark">Próximo a salir</span>'
                                 : '';
+
+                            // Construir badge de fecha de vencimiento
+                            let badgeVencimiento = '<span class="badge bg-secondary">No aplica</span>';
+                            if (lote.fecha_vencimiento) {
+                                const hoy = new Date();
+                                hoy.setHours(0, 0, 0, 0);
+                                const fechaVenc = new Date(lote.fecha_vencimiento + 'T00:00:00');
+                                const diasRestantes = Math.ceil((fechaVenc - hoy) / (1000 * 60 * 60 * 24));
+
+                                if (diasRestantes < 0) {
+                                    badgeVencimiento = `<span class="badge bg-danger">${lote.fecha_vencimiento} (Vencido)</span>`;
+                                } else if (diasRestantes <= 30) {
+                                    badgeVencimiento = `<span class="badge bg-warning text-dark">${lote.fecha_vencimiento} (${diasRestantes}d)</span>`;
+                                } else {
+                                    badgeVencimiento = `<span class="badge bg-success">${lote.fecha_vencimiento}</span>`;
+                                }
+                            }
+
                             tbodyLotes.innerHTML += `
                                 <tr>
                                     <td>${lote.codigo_lote}${badgeFifo}</td>
                                     <td>${lote.fecha_ingreso}</td>
-                                    <td>$${parseFloat(lote.costo_unitario).toFixed(2)}</td>
+                                    <td>${badgeVencimiento}</td>
+                                    <td>₡${parseFloat(lote.costo_unitario).toFixed(2)}</td>
                                     <td>${lote.cantidad_inicial}</td>
                                     <td class="fw-bold">${lote.cantidad_disponible}</td>
                                 </tr>
@@ -223,7 +242,7 @@ document.addEventListener('click', function (e) {
                     } else {
                         tbodyLotes.innerHTML = `
                             <tr>
-                                <td colspan="5" class="text-muted">No hay lotes con existencias disponibles.</td>
+                                <td colspan="6" class="text-muted">No hay lotes con existencias disponibles.</td>
                             </tr>
                         `;
                     }
@@ -239,7 +258,7 @@ document.addEventListener('click', function (e) {
     }
 });
 
-// Editar Producto (Bloquea campos de lote/stock para proteger la cola FIFO)
+// Editar Producto (Bloquea campos de lote/stock/vencimiento para proteger la cola FEFO/FIFO)
 document.addEventListener('click', function (e) {
     let btnEdit = e.target.closest('.btnEditProducto');
     if (btnEdit) {
@@ -280,12 +299,14 @@ document.addEventListener('click', function (e) {
                     document.querySelector("#txtPrecio").value = prod.precio;
                     document.querySelector("#listStatus").value = (prod.estado == 1 || prod.estado == true) ? 1 : 0;
 
-                    // Bloquear edición directa de lote, costo y stock en modo edición
+                    // <--- CAMBIO 2: Bloquear edición directa de lote, fecha vencimiento, costo y stock
                     document.querySelector("#txtLote").value = "";
+                    document.querySelector("#txtFechaVencimiento").value = "";
                     document.querySelector("#txtCosto").value = "";
                     document.querySelector("#txtStock").value = prod.stock;
 
                     document.querySelector("#txtLote").setAttribute("disabled", true);
+                    document.querySelector("#txtFechaVencimiento").setAttribute("disabled", true);
                     document.querySelector("#txtCosto").setAttribute("disabled", true);
                     document.querySelector("#txtStock").setAttribute("disabled", true);
                     document.querySelector("#notaEdicionFifo").classList.remove("d-none");
@@ -319,9 +340,10 @@ function openModal() {
     document.querySelector('#titleModal').innerHTML = "Nuevo Producto";
     document.querySelector("#formProducto").reset();
 
-    // Rehabilitar campos de inventario inicial para crear el primer lote FIFO
+    // <--- CAMBIO 3: Rehabilitar campos de inventario inicial incluyendo fecha de vencimiento
     document.querySelector('#txtCodigo').removeAttribute('readonly');
     document.querySelector('#txtLote').removeAttribute('disabled');
+    document.querySelector('#txtFechaVencimiento').removeAttribute('disabled');
     document.querySelector('#txtCosto').removeAttribute('disabled');
     document.querySelector('#txtStock').removeAttribute('disabled');
     document.querySelector('#notaEdicionFifo').classList.add('d-none');

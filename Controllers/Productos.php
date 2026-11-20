@@ -36,7 +36,7 @@ class Productos extends Controllers
                 $btnEdit = '';
 
                 // Formato de moneda
-                $arrData[$i]['precio'] = '$' . number_format((float)$arrData[$i]['precio'], 2, '.', ',');
+                $arrData[$i]['precio'] = '₡' . number_format((float)$arrData[$i]['precio'], 2, '.', ',');
 
                 // Etiqueta de estado (debe decir exactamente "Activo" o "Inactivo" para el filtro)
                 if ($arrData[$i]['estado'] == 1 || $arrData[$i]['estado'] === true) {
@@ -106,6 +106,7 @@ class Productos extends Controllers
                     $strLote  = strClean($_POST['txtLote'] ?? '');
                     $decCosto = floatval($_POST['txtCosto'] ?? 0);
                     $intStock = intval($_POST['txtStock'] ?? 0);
+                    $strFechaVencimiento = !empty($_POST['txtFechaVencimiento']) ? strClean($_POST['txtFechaVencimiento']) : null;
 
                     if (empty($strLote) || $intStock <= 0) {
                         $arrResponse = array("status" => false, "msg" => "Debe indicar un código de lote y cantidad inicial mayor a 0.");
@@ -121,7 +122,8 @@ class Productos extends Controllers
                             $intEstado,
                             $strLote,
                             $decCosto,
-                            $idUsuario
+                            $idUsuario,
+                            $strFechaVencimiento
                         );
 
                         if ($request > 0) {
