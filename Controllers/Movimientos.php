@@ -24,9 +24,8 @@ class Movimientos extends Controllers
         $this->views->getView($this, "movimientos", $data);
     }
 
-    /**
-     * Helper privado para renderizar los badges de estado
-     */
+    
+     // renderizar los badges de estado
     private function getBadgeEstado(int $estado): string
     {
         $badges = [
@@ -37,50 +36,66 @@ class Movimientos extends Controllers
             4 => '<span class="badge bg-success">Entregado</span>',
             5 => '<span class="badge bg-danger">Devolución Parcial</span>',
             6 => '<span class="badge bg-dark">Devolución Total</span>',
+            7 => '<span class="badge bg-warning text-dark">Pendiente Devuelto</span>',
+            8 => '<span class="badge bg-success">Devuelto</span>',
         ];
         return $badges[$estado] ?? '<span class="badge bg-light text-dark">Desconocido</span>';
     }
 
-    /**
-     * Listar movimientos con estado y botones dinámicos según etapa del flujo
-     */
+    
+    //Obtener movimientos con estado y botones dinámicos según etapa del flujo
     public function getMovimientos()
     {
         header('Content-Type: application/json; charset=utf-8');
         if ($_SESSION['permisosMod']['r']) {
             $arrData =$this->model->selectMovimientos();
 
-            for ($i = 0; $i < count($arrData); $i++) {$idMov  = $arrData[$i]['id_movimiento'];
-                $estado = intval($arrData[$i]['estado']);$tipo   =trim($arrData[$i]['tipo_movimiento']);
-               
+            for ($i = 0; $i < count($arrData); $i++) {
+                $idMov  = $arrData[$i]['id_movimiento'];
+                $estado = intval($arrData[$i]['estado']);
+                $tipo   = trim($arrData[$i]['tipo_movimiento']);
                 // Badge visual del estado del flujo
                 $arrData[$i]['estado_badge'] = $this->getBadgeEstado($estado);
 
                 // Visual para ENTRADA / SALIDA
                 if ($tipo === 'ENTRADA') {
-                    $arrData[$i]['tipo_movimiento'] = '<span class="badge bg-success"><i class="fa fa-arrow-down"></i> ENTRADA</span>';
-                    $arrData[$i]['monto_unitario']  = SMONEY . formatMoney($arrData[$i]['costo_unitario']);
+                    if (in_array($estado, [7, 8])) {
+                        $arrData[$i]['tipo_movimiento'] = '<span class="badge bg-warning text-dark"><i class="fa fa-undo"></i> ENTRADA (DEV.)</span>';
+                    } else {
+                        $arrData[$i]['tipo_movimiento'] = '<span class="badge bg-success"><i class="fa fa-arrow-down"></i> ENTRADA</span>';
+                    }
+                    $arrData[$i]['monto_unitario'] = SMONEY . formatMoney($arrData[$i]['costo_unitario']);
                 } else {
                     $arrData[$i]['tipo_movimiento'] = '<span class="badge bg-danger"><i class="fa fa-arrow-up"></i> SALIDA</span>';
                     $arrData[$i]['monto_unitario']  = SMONEY . formatMoney($arrData[$i]['precio_unitario']);
                 }
-
-                // Botón Ver (siempre disponible)
+                // Botón Ver 
                 $botones = '<button class="btn btn-info btn-sm btnViewMovimiento" cl="' . $idMov . '" title="Ver detalle"><i class="fa fa-eye"></i></button> ';
 
                 // Botones de acción según el estado de la SALIDA
                 if ($tipo === 'SALIDA' && !empty($_SESSION['permisosMod']['u'])) {
                     if ($estado === 1) {
-                        // Recibido por ventas: abrir modal para editar cantidades, quitar ítems o procesar
                         $botones .= '<button class="btn btn-warning btn-sm btnEditarListaVentas" cl="' . $arrData[$i]['id_cliente'] . '" title="Editar lista de ventas / Procesar"><i class="fa fa-pencil"></i></button> ';
                     } elseif ($estado === 2) {
-                        // En Proceso (Bodega): marcar como Enviado (descuenta stock físico y libera reserva)
                         $botones .= '<button class="btn btn-primary btn-sm btnCambiarEstado" cl="' . $idMov . '" estado="3" title="Marcar como Enviado"><i class="fas fa-truck"></i></button> ';
-                    } elseif ($estado === 3) { // Enviado: marcar como Entregado al cliente$botones .= '<button class="btn btn-success btn-sm btnCambiarEstado" cl="' . $idMov . '" estado="4" title="Marcar como Entregado"><i class="fa fa-check-circle"></i></button> ';
+                    } elseif ($estado === 3) {
+                        $botones .= '<button class="btn btn-success btn-sm btnCambiarEstado" cl="' . $idMov . '" estado="4" title="Marcar como Entregado"><i class="fa fa-check-circle"></i></button> ';
                     } elseif ($estado === 4) {
-                        // Entregado: habilitar Devolución Parcial o Total
-                        $botones .= '<button class="btn btn-danger btn-sm btnDevolucion" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Registrar Devolución"><i class="fas fa-undo"></i></button>';
+                        $botones .= '<button class="btn btn-danger btn-sm btnDevolucion" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Registrar Devolución"><i class="fas fa-undo"></i></button> ';
                     }
+                }
+                // Botón para confirmar estado DEVUELTO (reintegra stock) en ENTRADA pendiente de devolución
+                if ($tipo === 'ENTRADA' && $estado === 7 && !empty($_SESSION['permisosMod']['u'])) {
+                    $botones .= '<button class="btn btn-success btn-sm btnConfirmarDevuelto" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Pasar a Devuelto (Reintegrar Stock)"><i class="fa fa-check-square-o"></i></button> ';
+                }
+
+                // Botón para confirmar Devolucion  
+                if ($tipo === 'ENTRADA' && $estado === 7 && !empty($_SESSION['permisosMod']['u'])) {
+                    $botones .= '<button class="btn btn-success btn-sm btnConfirmarDevuelto" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Confirmar estado Devuelto"><i class="fa fa-check-square-o"></i></button> ';
+                }
+                // imprime reporte dev
+                if (in_array($estado, [5, 6, 7, 8])) {
+                    $botones .= '<button class="btn btn-secondary btn-sm btnReporteDevolucion" cl="' . $idMov . '" title="Ver / Imprimir Reporte de Devolución"><i class="fa fa-file-text-o"></i></button> ';
                 }
 
                 $arrData[$i]['opciones'] = '<div class="text-center">' . $botones . '</div>';
@@ -90,25 +105,27 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Obtener un movimiento para el modal Ver
-     */
+    
+     //Obtener un movimiento para el modal Ver
+     
     public function getMovimiento($id_movimiento)
     {
         if ($_SESSION['permisosMod']['r']) {
             $intIdMovimiento = intval($id_movimiento);
-            if ($intIdMovimiento > 0) {$arrData = $this->model->selectMovimiento($intIdMovimiento);
-                if (empty($arrData)) {$arrResponse = array('status' => false, 'msg' => 'Datos no encontrados.');
+            if ($intIdMovimiento > 0) {
+                $arrData = $this->model->selectMovimiento($intIdMovimiento);
+                if (empty($arrData)) {
+                    $arrResponse = array('status' => false, 'msg' => 'Datos no encontrados.');
                 } else {
                     $arrData['estado_badge']   = $this->getBadgeEstado(intval($arrData['estado']));
                     $arrData['costo_formato']  = SMONEY . formatMoney($arrData['costo_unitario']);
                     $arrData['precio_formato'] = SMONEY . formatMoney($arrData['precio_unitario']);
-                    $subtotal = ($arrData['tipo_movimiento'] === 'ENTRADA') 
-                                ? ($arrData['cantidad'] *$arrData['costo_unitario']) 
-                                : ($arrData['cantidad'] *$arrData['precio_unitario']);
+                    $subtotal = ($arrData['tipo_movimiento'] === 'ENTRADA')
+                        ? ($arrData['cantidad'] * $arrData['costo_unitario'])
+                        : ($arrData['cantidad'] * $arrData['precio_unitario']);
                     $arrData['total_formato']  = SMONEY . formatMoney($subtotal);
 
-                    $arrResponse = array('status' => true, 'data' =>$arrData);
+                    $arrResponse = array('status' => true, 'data' => $arrData);
                 }
                 echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
             }
@@ -116,9 +133,9 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Registrar nueva ENTRADA (Estado 0) o agregar ítem a SALIDA en Ventas (Estado 1 - Congelado)
-     */
+    
+    //Registrar nueva ENTRADA (Estado 0) o agregar ítem a SALIDA en Ventas (Estado 1 - Congelado)
+     
     public function setMovimiento()
     {
         if ($_POST) {
@@ -127,7 +144,14 @@ class Movimientos extends Controllers
                 die();
             }
 
-            $strTipoMovimiento = strtoupper(strClean($_POST['listTipoMovimiento'] ?? ''));$intIdProducto     = intval($_POST['listProducto'] ?? 0);$intIdLote         = intval($_POST['listLote'] ?? 0);$intCantidad       = intval($_POST['txtCantidad'] ?? 0);$decCostoUnitario  = floatval($_POST['txtCostoUnitario'] ?? 0);$decPrecioUnitario = floatval($_POST['txtPrecioUnitario'] ?? 0);$strMotivo         = strClean($_POST['txtMotivo'] ?? '');$intIdCliente      = !empty($_POST['listCliente']) ? intval($_POST['listCliente']) : null;
+            $strTipoMovimiento = strtoupper(strClean($_POST['listTipoMovimiento'] ?? ''));
+            $intIdProducto     = intval($_POST['listProducto'] ?? 0);
+            $intIdLote         = intval($_POST['listLote'] ?? 0);
+            $intCantidad       = intval($_POST['txtCantidad'] ?? 0);
+            $decCostoUnitario  = floatval($_POST['txtCostoUnitario'] ?? 0);
+            $decPrecioUnitario = floatval($_POST['txtPrecioUnitario'] ?? 0);
+            $strMotivo         = strClean($_POST['txtMotivo'] ?? '');
+            $intIdCliente      = !empty($_POST['listCliente']) ? intval($_POST['listCliente']) : null;
             $intIdUsuario      = intval($_SESSION['idUser']);
 
             if (!in_array($strTipoMovimiento, ['ENTRADA', 'SALIDA'])) {
@@ -144,37 +168,44 @@ class Movimientos extends Controllers
             }
 
             if ($strTipoMovimiento === 'ENTRADA') {
-                // ENTRADA directa al lote (Estado 0)
-                $request =$this->model->insertMovimientoEntrada(
-                    $intIdProducto,$intIdLote,
-                    $intCantidad,$decCostoUnitario,
-                    $strMotivo,$intIdUsuario
+                $request = $this->model->insertMovimientoEntrada(
+                    $intIdProducto,
+                    $intIdLote,
+                    $intCantidad,
+                    $decCostoUnitario,
+                    $strMotivo,
+                    $intIdUsuario
                 );
 
                 if ($request === "lote_invalido") {
                     $arrResponse = ['status' => false, 'msg' => 'El lote seleccionado no pertenece al producto.'];
-                } elseif ($request > 0) {$arrResponse = ['status' => true, 'tipo' => 'ENTRADA', 'msg' => 'Entrada de inventario registrada correctamente.'];
+                } elseif ($request > 0) {
+                    $arrResponse = ['status' => true, 'tipo' => 'ENTRADA', 'msg' => 'Entrada de inventario registrada correctamente.'];
                 } else {
                     $arrResponse = ['status' => false, 'msg' => 'No es posible almacenar la entrada.'];
                 }
             } else {
-                // SALIDA: entra en estado 1 (Recibido por ventas) y congela cantidad
                 if (empty($intIdCliente)) {
                     echo json_encode(['status' => false, 'msg' => 'Para una SALIDA es obligatorio seleccionar un cliente.'], JSON_UNESCAPED_UNICODE);
                     die();
                 }
 
-                $request = $this->model->insertItemSalidaVentas($intIdProducto,
-                    $intIdLote,$intCantidad,
-                    $decPrecioUnitario,$strMotivo,
-                    $intIdUsuario,$intIdCliente
+                $request = $this->model->insertItemSalidaVentas(
+                    $intIdProducto,
+                    $intIdLote,
+                    $intCantidad,
+                    $decPrecioUnitario,
+                    $strMotivo,
+                    $intIdUsuario,
+                    $intIdCliente
                 );
 
                 if ($request === "stock_insuficiente") {
                     $arrResponse = ['status' => false, 'msg' => 'Stock disponible insuficiente (considere las unidades ya congeladas).'];
                 } elseif ($request === "lote_invalido") {
                     $arrResponse = ['status' => false, 'msg' => 'El lote seleccionado no pertenece al producto o está inactivo.'];
-                } elseif ($request > 0) {$arrResponse = ['status' => true, 'tipo' => 'SALIDA', 'msg' => 'Artículo agregado a la lista y cantidad congelada.'];
+                } elseif ($request > 0) {
+                    $arrResponse = ['status' => true, 'tipo' => 'SALIDA', 'msg' => 'Artículo agregado a la lista y cantidad congelada.'];
                 } else {
                     $arrResponse = ['status' => false, 'msg' => 'No es posible agregar el artículo a la lista.'];
                 }
@@ -185,9 +216,9 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Obtener artículos en estado 1 (Recibido por ventas) de un cliente
-     */
+    
+    //Obtener artículos en estado 1 (Recibido por ventas) de un cliente
+    
     public function getListaVentas($id_cliente)
     {
         if ($_SESSION['permisosMod']['r']) {
@@ -198,9 +229,8 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Editar cantidad de un ítem en estado 1 (Recalcula stock congelado)
-     */
+    
+     //Editar cantidad de un ítem en estado 1
     public function editItemVentas()
     {
         if ($_POST) {
@@ -219,16 +249,17 @@ class Movimientos extends Controllers
             } elseif ($res === "stock_insuficiente") {
                 $arrResponse = ['status' => false, 'msg' => 'No hay suficiente stock libre en el lote para esa cantidad.'];
             } elseif ($res === "cantidad_invalida") {
-                $arrResponse = ['status' => false, 'msg' => 'La cantidad debe ser mayor a 0.']; } else {$arrResponse = ['status' => false, 'msg' => 'El ítem ya fue procesado o no se pudo actualizar.'];
+                $arrResponse = ['status' => false, 'msg' => 'La cantidad debe ser mayor a 0.'];
+            } else {
+                $arrResponse = ['status' => false, 'msg' => 'El ítem ya fue procesado o no se pudo actualizar.'];
             }
-            echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
-        }
+              echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+     }
         die();
     }
-
-    /**
-     * Llenar selects iniciales del modal (Productos y Clientes activos)
-     */
+    
+     //Llenar selects iniciales del modal (Productos y Clientes activos)
+     
     public function getSelectsIniciales()
     {
         if ($_SESSION['permisosMod']['r']) {
@@ -244,9 +275,8 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Obtener lotes disponibles de un producto seleccionado
-     */
+    
+     //Obtener lotes disponibles de un producto seleccionado
     public function getLotesProducto($id_producto)
     {
         if ($_SESSION['permisosMod']['r']) {
@@ -257,9 +287,8 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Quitar ítem de la lista de ventas (Estado 1)
-     */
+   
+    //Quitar ítem de la lista de ventas (Estado 1)
     public function delItemVentas()
     {
         if ($_POST) {
@@ -279,9 +308,8 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Procesar pedido de ventas (Estado 1 -> Estado 2)
-     */
+    
+    //Procesar pedido de ventas (Estado 1 -> Estado 2)
     public function procesarVentas()
     {
         if ($_POST) {
@@ -301,9 +329,9 @@ class Movimientos extends Controllers
         die();
     }
 
-    /**
-     * Avanzar estado de bodega (2 -> 3 Enviado | 3 -> 4 Entregado)
-     */
+    
+     //Avanzar estado de bodega 2 -> 3 Enviado  3 -> 4 Entregado 7 -> 8 Devuelto sin sumar al stock 
+    
     public function cambiarEstado()
     {
         if ($_POST) {
@@ -313,20 +341,28 @@ class Movimientos extends Controllers
             }
             $intIdMov    = intval($_POST['id_movimiento'] ?? 0);
             $nuevoEstado = intval($_POST['estado'] ?? 0);
-            $request     = $this->model->avanzarEstadoSalida($intIdMov, $nuevoEstado);
+            $request     = $this->model->avanzarEstadoMovimiento($intIdMov, $nuevoEstado);
 
-            $arrResponse = $request
-                ? ['status' => true, 'msg' => 'Estado actualizado correctamente.']
-                : ['status' => false, 'msg' => 'No fue posible actualizar el estado.'];
-
+            if ($request) {
+                $msg = 'Estado actualizado correctamente.';
+                if ($nuevoEstado === 3) {
+                    $msg = 'Pedido marcado como ENVIADO y descontado del stock físico.';
+                } elseif ($nuevoEstado === 4) {
+                    $msg = 'Pedido marcado como ENTREGADO al cliente.';
+                } elseif ($nuevoEstado === 8) {
+                    $msg = 'Devolución completada en estado DEVUELTO (sin suma al stock disponible).';
+                }
+                $arrResponse = ['status' => true, 'msg' => $msg];
+            } else {
+                $arrResponse = ['status' => false, 'msg' => 'No fue posible actualizar el estado.'];
+            }
             echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
         }
         die();
     }
 
-    /**
-     * Registrar devolución parcial o total (Estados 5 y 6)
-     */
+   
+     //Registrar devolución parcial o total (Estados 5 y 6)
     public function setDevolucion()
     {
         if ($_POST) {
@@ -341,14 +377,45 @@ class Movimientos extends Controllers
 
             $res = $this->model->registrarDevolucion($intIdMov, $intCantidad, $strMotivo, $intUsuario);
 
-            if ($res === "ok") {
-                $arrResponse = ['status' => true, 'msg' => 'Devolución registrada e inventario reintegrado.'];
+            if (is_array($res) && $res['status'] === "ok") {
+                $reporte = $this->model->selectReporteDevolucion(intval($res['id_devolucion']));
+                if (!empty($reporte)) {
+                    $reporte['precio_formato'] = SMONEY . formatMoney($reporte['precio_unitario']);
+                    $reporte['total_formato']  = SMONEY . formatMoney($reporte['monto_devuelto']);
+                }
+                $arrResponse = [
+                    'status'  => true,
+                    'msg'     => 'Devolución registrada. Confirme la recepción física en bodega para completar el estado Devuelto.',
+                    'reporte' => $reporte
+                ];
             } elseif ($res === "cantidad_invalida") {
-                $arrResponse = ['status' => false, 'msg' => 'La cantidad a devolver es inválida.'];
+                $arrResponse = ['status' => false, 'msg' => 'La cantidad a devolver debe estar entre 1 y el total entregado.'];
+            } elseif ($res === "estado_invalido") {
+                $arrResponse = ['status' => false, 'msg' => 'Solo se pueden devolver movimientos en estado Entregado.'];
             } else {
                 $arrResponse = ['status' => false, 'msg' => 'No se pudo registrar la devolución.'];
             }
             echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
+
+    //Datos para reporte devolucion
+    public function getReporteDevolucion($id_movimiento)
+    {
+        if ($_SESSION['permisosMod']['r']) {
+            $intIdMov = intval($id_movimiento);
+            if ($intIdMov > 0) {
+                $reporte = $this->model->selectReporteDevolucion($intIdMov);
+                if (empty($reporte)) {
+                    $arrResponse = ['status' => false, 'msg' => 'No se encontró reporte de devolución para este movimiento.'];
+                } else {
+                    $reporte['precio_formato'] = SMONEY . formatMoney($reporte['precio_unitario']);
+                    $reporte['total_formato']  = SMONEY . formatMoney($reporte['monto_devuelto']);
+                    $arrResponse = ['status' => true, 'reporte' => $reporte];
+                }
+                echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+            }
         }
         die();
     }

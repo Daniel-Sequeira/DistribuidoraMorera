@@ -17,9 +17,9 @@ class MovimientosModel extends Pgsql
         parent::__construct();
     }
 
-    /**
-     * Listar todos los movimientos para el DataTable (incluye estado e id_cliente)
-     */
+    
+     //Listar todos los movimientos para el DataTable (incluye estado e id_cliente)
+     
     public function selectMovimientos()
     {
         $sql = "SELECT 
@@ -45,9 +45,9 @@ class MovimientosModel extends Pgsql
         return $this->select_all($sql);
     }
 
-    /**
-     * Obtener detalle de un movimiento específico (Modal Ver)
-     */
+    
+     //Obtener detalle de un movimiento específico (Modal Ver)
+     
     public function selectMovimiento(int $idMovimiento)
     {
         $this->intIdMovimiento = $idMovimiento;
@@ -75,9 +75,9 @@ class MovimientosModel extends Pgsql
         return $this->select($sql);
     }
 
-    /**
-     * 1. Registrar ENTRADA directa (Estado 0: Completado)
-     */
+    
+      //Registrar ENTRADA directa (Estado 0: Completado)
+     
     public function insertMovimientoEntrada(
         int $idProducto,
         int $idLote,
@@ -134,9 +134,9 @@ class MovimientosModel extends Pgsql
         }
     }
 
-    /**
-     * 2. Agregar artículo a lista de Ventas (Estado 1: Recibido por ventas) y CONGELAR cantidad
-     */
+    
+     //Agregar artículo a lista de Ventas (Estado 1: Recibido por ventas) y CONGELAR cantidad
+     
     public function insertItemSalidaVentas(
         int $idProducto,
         int $idLote,
@@ -202,9 +202,9 @@ class MovimientosModel extends Pgsql
         }
     }
 
-    /**
-     * 3. Listar artículos pendientes (Estado 1) de un cliente para que Ventas edite/quite
-     */
+    
+    //Listar artículos pendientes (Estado 1) de un cliente
+     
     public function selectListaVentasCliente(int $idCliente)
     {
         $this->intIdCliente = $idCliente;
@@ -228,9 +228,9 @@ class MovimientosModel extends Pgsql
         return $this->select_all($sql);
     }
 
-    /**
-     * 4. Editar cantidad de un ítem en Estado 1 (Recalcula cantidad_reservada)
-     */
+    
+     //Editar cantidad de un ítem en Estado 1 (Recalcula cantidad_reservada)
+     
     public function updateCantidadSalidaVentas(int $idMovimiento, int $nuevaCantidad)
     {
         if ($nuevaCantidad <= 0) {
@@ -270,9 +270,8 @@ class MovimientosModel extends Pgsql
         }
     }
 
-    /**
-     * 5. Remover ítem de la lista de Ventas en Estado 1 (Libera cantidad_reservada)
-     */
+    
+      //Remover ítem de la lista de Ventas en Estado 1 (Libera cantidad_reservada)
     public function deleteItemSalidaVentas(int $idMovimiento)
     {
         $this->intIdMovimiento = $idMovimiento;
@@ -299,9 +298,8 @@ class MovimientosModel extends Pgsql
         }
     }
 
-    /**
-     * 6. Procesar lista de Ventas: Estado 1 -> Estado 2 (En Proceso para Bodega)
-     */
+    
+     //Procesar lista de Ventas: Estado 1 -> Estado 2 (En Proceso para Bodega) 
     public function procesarPedidoVentas(int $idCliente)
     {
         $this->intIdCliente = $idCliente;
@@ -311,15 +309,15 @@ class MovimientosModel extends Pgsql
         return $this->update($sql, array($this->intIdCliente));
     }
 
-    /**
-     * 7. Avanzar estados de Bodega / Entrega (2 -> 3 Enviado | 3 -> 4 Entregado)
-     */
-    public function avanzarEstadoSalida(int $idMovimiento, int $nuevoEstado)
+   
+    //Avanzar estados de Bodega / Entrega (2 -> 3 Enviado | 3 -> 4 Entregado)
+     
+    public function avanzarEstadoMovimiento(int $idMovimiento, int $nuevoEstado)
     {
         $this->intIdMovimiento = $idMovimiento;
-        $sql = "SELECT id_movimiento, id_producto, id_lote, cantidad, estado 
+        $sql = "SELECT id_movimiento, tipo_movimiento, id_producto, id_lote, cantidad, estado 
                 FROM movimientos_inventario 
-                WHERE id_movimiento = $this->intIdMovimiento AND tipo_movimiento = 'SALIDA'";
+                WHERE id_movimiento = $this->intIdMovimiento";
         $mov = $this->select($sql);
 
         if (empty($mov)) {
@@ -327,12 +325,13 @@ class MovimientosModel extends Pgsql
         }
 
         $estadoActual = intval($mov['estado']);
+        $tipoMov      = trim($mov['tipo_movimiento']);
 
         try {
             $this->beginTransaction();
 
             // Estado 2 (En Proceso) -> Estado 3 (Enviado): Descuenta disponible y libera reserva
-            if ($estadoActual === 2 && $nuevoEstado === 3) {
+            if ($tipoMov === 'SALIDA' && $estadoActual === 2 && $nuevoEstado === 3) {
                 $this->update("UPDATE movimientos_inventario SET estado = 3 WHERE id_movimiento = ?", array($this->intIdMovimiento));
                 $this->update(
                     "UPDATE producto_lotes 
@@ -343,8 +342,12 @@ class MovimientosModel extends Pgsql
                 );
             }
             // Estado 3 (Enviado) -> Estado 4 (Entregado)
-            elseif ($estadoActual === 3 && $nuevoEstado === 4) {
+            elseif ($tipoMov === 'SALIDA' && $estadoActual === 3 && $nuevoEstado === 4) {
                 $this->update("UPDATE movimientos_inventario SET estado = 4 WHERE id_movimiento = ?", array($this->intIdMovimiento));
+            }
+            // Estado 7 (Pendiente Devuelto) -> Estado 8 (Devuelto): Solo actualiza el estado, NO suma al stock
+            elseif ($tipoMov === 'ENTRADA' && $estadoActual === 7 && $nuevoEstado === 8) {
+                $this->update("UPDATE movimientos_inventario SET estado = 8 WHERE id_movimiento = ?", array($this->intIdMovimiento));
             } else {
                 $this->rollBack();
                 return false;
@@ -358,15 +361,15 @@ class MovimientosModel extends Pgsql
         }
     }
 
-    /**
-     * 8. Registrar Devolución Parcial (Estado 5) o Total (Estado 6)
-     */
+    
+     //Registrar Devolución Parcial (Estado 5) o Total (Estado 6) desde Entregado (Estado 4)
+     
     public function registrarDevolucion(int $idMovimiento, int $cantDevolver, string $motivoDevolucion, int $idUsuario)
     {
         $this->intIdMovimiento = $idMovimiento;
-        $sql = "SELECT id_movimiento, id_producto, id_lote, cantidad, estado, motivo 
+        $sql = "SELECT id_movimiento, id_producto, id_lote, cantidad, precio_unitario, id_cliente, estado, motivo 
                 FROM movimientos_inventario 
-                WHERE id_movimiento = $this->intIdMovimiento AND tipo_movimiento = 'SALIDA' AND estado IN (3, 4)";
+                WHERE id_movimiento = $this->intIdMovimiento AND tipo_movimiento = 'SALIDA' AND estado = 4";
         $mov = $this->select($sql);
 
         if (empty($mov)) {
@@ -378,44 +381,107 @@ class MovimientosModel extends Pgsql
             return "cantidad_invalida";
         }
 
-        $nuevoEstado = ($cantDevolver === $cantOriginal) ? 6 : 5; // 6 = Total, 5 = Parcial
+        $nuevoEstadoSalida = ($cantDevolver === $cantOriginal) ? 6 : 5; 
         $notaMotivo = substr(trim(($mov['motivo'] ?? '') . " | Dev. ($cantDevolver unds): $motivoDevolucion"), 0, 100);
 
         try {
             $this->beginTransaction();
 
-            // 1. Marcar la salida original como Devolución Parcial (5) o Total (6)
+            //Marcar la salida original como Devolución Parcial (5) o Total (6)
             $this->update(
                 "UPDATE movimientos_inventario SET estado = ?, motivo = ? WHERE id_movimiento = ?",
-                array($nuevoEstado, $notaMotivo, $this->intIdMovimiento)
+                array($nuevoEstadoSalida, $notaMotivo, $this->intIdMovimiento)
             );
 
-            // 2. Insertar movimiento ENTRADA de respaldo en el Kardex (cumple CHECK constraints)
+            //Insertar movimiento de devolución en estado 7 (Pendiente Devuelto)
             $motivoEntrada = substr("Devolución Salida #$this->intIdMovimiento: $motivoDevolucion", 0, 100);
-            $this->insert(
+            $idDevolucion = $this->insert(
                 "INSERT INTO movimientos_inventario (
                     id_producto, id_lote, tipo_movimiento, cantidad, costo_unitario, precio_unitario, motivo, id_usuario, id_cliente, estado
-                 ) VALUES (?, ?, 'ENTRADA', ?, 0.00, 0.00, ?, ?, NULL, 0)",
-                array($mov['id_producto'], $mov['id_lote'], $cantDevolver, $motivoEntrada, $idUsuario)
-            );
-
-            // 3. Reintegrar cantidad_disponible al lote
-            $this->update(
-                "UPDATE producto_lotes SET cantidad_disponible = cantidad_disponible + ? WHERE id_lote = ?",
-                array($cantDevolver, $mov['id_lote'])
+                 ) VALUES (?, ?, 'ENTRADA', ?, 0.00, 0.00, ?, ?, ?, 7) RETURNING id_movimiento",
+                array($mov['id_producto'], $mov['id_lote'], $cantDevolver, $motivoEntrada, $idUsuario, $mov['id_cliente'])
             );
 
             $this->commit();
-            return "ok";
+            return [
+                'status'        => 'ok',
+                'id_devolucion' => $idDevolucion
+            ];
         } catch (Exception $e) {
             $this->rollBack();
             return "error";
         }
     }
 
-    /**
-     * Métodos auxiliares para llenar los selects del modal
-     */
+    //Info para reporte devolucion
+    public function selectReporteDevolucion(int $idMovimiento)
+    {
+        $this->intIdMovimiento = $idMovimiento;
+        $sqlBase = "SELECT id_movimiento, tipo_movimiento, motivo FROM movimientos_inventario WHERE id_movimiento = $this->intIdMovimiento";
+        $movBase = $this->select($sqlBase);
+
+        if (empty($movBase)) {
+            return [];
+        }
+
+        $idEntradaDev = 0;
+        $idSalidaOrig = 0;
+
+        if (trim($movBase['tipo_movimiento']) === 'ENTRADA') {
+            $idEntradaDev = intval($movBase['id_movimiento']);
+            if (preg_match('/Devolución Salida #(\d+):/', $movBase['motivo'] ?? '', $matches)) {
+                $idSalidaOrig = intval($matches[1]);
+            }
+        } else {
+            $idSalidaOrig = intval($movBase['id_movimiento']);
+            $sqlFindEnt = "SELECT id_movimiento FROM movimientos_inventario 
+                           WHERE tipo_movimiento = 'ENTRADA' 
+                             AND motivo LIKE 'Devolución Salida #$idSalidaOrig:%' 
+                           ORDER BY id_movimiento DESC LIMIT 1";
+            $entRow = $this->select($sqlFindEnt);
+            $idEntradaDev = intval($entRow['id_movimiento'] ?? 0);
+        }
+
+        if ($idEntradaDev <= 0) {
+            return [];
+        }
+
+        $sql = "SELECT 
+                    dev.id_movimiento AS id_devolucion,
+                    TO_CHAR(dev.fecha_movimiento, 'DD/MM/YYYY HH24:MI:SS') AS fecha_devolucion,
+                    dev.cantidad AS cantidad_devuelta,
+                    dev.estado AS estado_devolucion,
+                    dev.motivo AS motivo_raw,
+                    u_dev.nombre_completo AS usuario_devolucion,
+                    p.codigo AS codigo_producto,
+                    p.nombre AS producto,
+                    l.codigo_lote AS lote,
+                    COALESCE(c.identificacion, 'N/A') AS identificacion_cliente,
+                    COALESCE(c.nombre_razon_social, 'Cliente no especificado') AS cliente,
+                    sal.id_movimiento AS id_salida_origen,
+                    TO_CHAR(sal.fecha_movimiento, 'DD/MM/YYYY HH24:MI') AS fecha_salida,
+                    COALESCE(sal.cantidad, dev.cantidad) AS cantidad_original,
+                    (COALESCE(sal.cantidad, dev.cantidad) - dev.cantidad) AS cantidad_conservada,
+                    COALESCE(sal.precio_unitario, 0.00) AS precio_unitario,
+                    (dev.cantidad * COALESCE(sal.precio_unitario, 0.00)) AS monto_devuelto,
+                    COALESCE(sal.estado, 6) AS estado_salida
+                FROM movimientos_inventario dev
+                INNER JOIN productos p ON dev.id_producto = p.id_producto
+                INNER JOIN producto_lotes l ON dev.id_lote = l.id_lote
+                INNER JOIN usuarios u_dev ON dev.id_usuario = u_dev.id_usuario
+                LEFT JOIN clientes c ON dev.id_cliente = c.id_cliente
+                LEFT JOIN movimientos_inventario sal ON sal.id_movimiento = $idSalidaOrig
+                WHERE dev.id_movimiento = $idEntradaDev";
+
+        $data = $this->select($sql);
+        if (!empty($data)) {
+            $data['motivo_devolucion'] = preg_replace('/^Devolución Salida #\d+:\s*/', '', $data['motivo_raw'] ?? '');
+        }
+        return $data;
+    }
+
+    
+      //Métodos auxiliares para llenar los selects del modal
     public function selectProductosActivos()
     {
         $sql = "SELECT id_producto, codigo, nombre 
@@ -451,5 +517,15 @@ class MovimientosModel extends Pgsql
                 ORDER BY nombre_razon_social ASC";
         return $this->select_all($sql);
     }
+
+
+
+
+
+
+
+
+
+    
 }
 ?>

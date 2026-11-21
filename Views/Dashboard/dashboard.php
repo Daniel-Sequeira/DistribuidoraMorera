@@ -89,6 +89,7 @@ headerAdmin($data);
       </div>
     <?php } ?>
   </div>
+  <!-- Tabla de Movimientos Recientes -->
   <div class="row">
     <?php if (!empty($_SESSION['permisos'][8]['r'])) { ?>
       <div class="col-md-6">
@@ -112,16 +113,238 @@ headerAdmin($data);
                     <td><?= $movimiento['id_movimiento'] ?></td>
                     <td><?= $movimiento['nombre_razon_social'] ?></td>
                     <td><?= $movimiento['estado_badge'] ?></td>
-                     <td><?= $movimiento['nombre_completo'] ?></td>
+                    <td><?= $movimiento['nombre_completo'] ?></td>
+                    <td class="text-center">
+                      <button type="button" 
+                      class="btn btn-info btn-sm btnViewMovimiento"
+                      cl=<?= $movimiento['id_movimiento'] ?>"
+                      title="Ver"><i class="fas fa-eye"></i>
+                      </button>
+                     </td>
                   </tr>
               <?php }
-              } ?>
+              } else{
+              ?>
+              <tr>
+                <td colspan="5" class= "text-center">No hay movimientos recientes.>/td>
+
+              </tr>
+              <?php } ?>
             </tbody>
           </table>
         </div>
       </div>
     <?php } ?>
+</div>
+<!-- Área de Gráficos -->
+    <div class="row">
+    <!-- Gráfico 1 (Izquierda) -->
+    <div class="col-md-6">
+      <div class="tile">
+        <h3 class="tile-title">Movimientos por día</h3>
+        <div id="movimientosDia"></div>
+      </div>
+    </div>
+    <!-- Gráfico 2 (Derecha) -->
+    <div class="col-md-6">
+      <div class="tile">
+        <h3 class="tile-title">Movimientos por mes</h3>
+        <div id="movimientosMesAnio"></div>
+      </div>
+    </div>
   </div>
-
+  
 </main>
-<?php footerAdmin($data); ?>
+<?php 
+getModal('modalMovimientos', $data);
+footerAdmin($data); 
+?>
+<script src="<?= media(); ?>/js/functions_movimientos.js"></script>
+<script>
+ 
+  Highcharts.chart('movimientosMesAnio', {
+    chart: {
+      type: 'pie'
+    },
+
+    title: {
+      text: 'Support requests'
+    },
+
+    palette: {
+      light: {
+        colors: ['#014CE5', '#A5AFB6', '#D6DBDE', '#E8EEF1', '#F5FCFF']
+      },
+      dark: {
+        colors: ['#216AFF', '#AABAC4', '#929FA7', '#818C93', '#697278']
+      }
+    },
+
+    tooltip: {
+      valueSuffix: '%'
+    },
+
+    series: [{
+      name: 'Requests',
+      // We can show multiple data labels per point
+      dataLabels: [{
+          format: '{point.name}',
+          connectorColor: 'var(--highcharts-neutral-color-80, #333)'
+        },
+        {
+          format: '{point.percentage:.0f}%',
+          backgroundColor: 'contrast',
+          distance: -30, // Placing the label inside
+          style: {
+            fontSize: '0.9em',
+            textOutline: 'none'
+          }
+        }
+      ],
+      data: [
+        ['Webform', 55],
+        ['Call', 17],
+        ['Email', 7],
+        ['Webchat', 5],
+        ['Other', 3]
+      ]
+    }]
+  });
+  Highcharts.chart('movimientosDia', {
+    chart: {
+      plotBorderColor: 'var(--highcharts-neutral-color-10, #e6e6e6)',
+      plotBorderWidth: 1,
+      plotBorderRadius: 5
+    },
+
+    title: {
+      text: 'Application users last 24 hours',
+      align: 'left'
+    },
+
+    subtitle: {
+      text: 'All traffic sources combined'
+    },
+
+    yAxis: {
+      title: {
+        text: 'Unique users'
+      }
+    },
+
+    xAxis: {
+      type: 'datetime',
+      crosshair: true,
+      dateTimeLabelFormats: {
+        // Don't show the date
+        day: {
+          boundary: '%H:%M',
+          main: '%H:%M'
+        }
+      },
+      lineWidth: 0,
+      tickLength: 6,
+      tickColor: 'var(--highcharts-neutral-color-10, #e6e6e6)'
+    },
+
+    legend: {
+      enabled: false
+    },
+
+    tooltip: {
+      shared: true,
+      headerFormat: `<table>
+            <caption>{point.x:%[HM]} → {(add point.x 3540000):%[HM]}</caption>`,
+      pointFormat: `
+        <tr>
+          <th>
+            <svg width="20" height="10">
+              <path d="M 5 5 L 13 5" stroke="{series.color}" stroke-width="5"
+                stroke-linecap="round" />
+            </svg>
+            {series.name}
+          </th>
+          <td>{point.y}</td>
+        </tr>
+        `,
+      footerFormat: '</table>',
+      useHTML: true
+    },
+
+    // Common options for all series
+    plotOptions: {
+      series: {
+        // There are many ways to handle time data in Highcharts.
+        // This way we omit the timestamp from each data point, and
+        // rely on each data point being one hour apart.
+        pointInterval: 36e5, // one hour
+        marker: {
+          enabled: false
+        }
+      }
+    },
+
+    series: [{
+        name: 'Users',
+        color: 'light-dark(#0097FF, #27A6FE)',
+        data: [
+          990,
+          652,
+          965,
+          1048,
+          939,
+          1012,
+          2089,
+          3995,
+          4123,
+          4302,
+          5289,
+          6115,
+          7723,
+          8162,
+          10089,
+          7812,
+          4127,
+          3812,
+          4156,
+          3805,
+          2958,
+          1984,
+          1432,
+          1299
+        ]
+      },
+      {
+        name: 'Average',
+        color: '#8791BA',
+        dashStyle: 'ShortDot',
+        data: [
+          865,
+          832,
+          775,
+          728,
+          779,
+          812,
+          989,
+          1095,
+          1623,
+          2102,
+          2289,
+          2315,
+          2412,
+          2662,
+          3089,
+          2812,
+          2427,
+          2112,
+          2356,
+          2305,
+          1858,
+          1084,
+          932,
+          899
+        ]
+      }
+    ]
+  });
+</script>

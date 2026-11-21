@@ -1,4 +1,4 @@
-<!--MODAL 1: REGISTRAR ENTRADA / GESTIONAR LISTA DE SALIDA (VENTAS - ESTADO 1) -->
+<!-- MODAL 1: REGISTRAR ENTRADA / GESTIONAR LISTA DE SALIDA (VENTAS - ESTADO 1) -->
 <div class="modal fade" id="modalFormMovimientos" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -14,7 +14,6 @@
                     </p>
 
                     <div class="row">
-                        <!-- Tipo de Movimiento -->
                         <div class="col-md-4 mb-3">
                             <label for="listTipoMovimiento" class="form-label">Tipo de Movimiento <span class="required">*</span></label>
                             <select class="form-select" id="listTipoMovimiento" name="listTipoMovimiento" required>
@@ -23,7 +22,6 @@
                             </select>
                         </div>
 
-                        <!-- Cliente (Visible y obligatorio solo en SALIDA) -->
                         <div class="col-md-8 mb-3 d-none" id="divCliente">
                             <label for="listCliente" class="form-label">Cliente <span class="required">*</span></label>
                             <select class="form-select" id="listCliente" name="listCliente">
@@ -33,7 +31,6 @@
                     </div>
 
                     <div class="row">
-                        <!-- Producto -->
                         <div class="col-md-5 mb-3">
                             <label for="listProducto" class="form-label">Producto <span class="required">*</span></label>
                             <select class="form-select" id="listProducto" name="listProducto" required>
@@ -41,7 +38,6 @@
                             </select>
                         </div>
 
-                        <!-- Lote (Cargado dinámicamente desde producto_lotes) -->
                         <div class="col-md-5 mb-3">
                             <label for="listLote" class="form-label">Lote Disponible <span class="required">*</span></label>
                             <select class="form-select" id="listLote" name="listLote" required disabled>
@@ -49,7 +45,6 @@
                             </select>
                         </div>
 
-                        <!-- Cantidad -->
                         <div class="col-md-2 mb-3">
                             <label for="txtCantidad" class="form-label">Cantidad <span class="required">*</span></label>
                             <input type="number" class="form-control" id="txtCantidad" name="txtCantidad" min="1" step="1" placeholder="0" required>
@@ -58,19 +53,16 @@
                     </div>
 
                     <div class="row">
-                        <!-- Costo Unitario (Visible en ENTRADA) -->
                         <div class="col-md-4 mb-3" id="divCostoUnitario">
                             <label for="txtCostoUnitario" class="form-label">Costo Unitario <span class="required">*</span></label>
                             <input type="number" class="form-control" id="txtCostoUnitario" name="txtCostoUnitario" min="0" step="0.01" value="0.00">
                         </div>
 
-                        <!-- Precio Unitario (Visible en SALIDA) -->
                         <div class="col-md-4 mb-3 d-none" id="divPrecioUnitario">
                             <label for="txtPrecioUnitario" class="form-label">Precio Unitario <span class="required">*</span></label>
                             <input type="number" class="form-control" id="txtPrecioUnitario" name="txtPrecioUnitario" min="0" step="0.01" value="0.00">
                         </div>
 
-                        <!-- Motivo / Referencia -->
                         <div class="col-md-8 mb-3">
                             <label for="txtMotivo" class="form-label">Motivo / Referencia</label>
                             <input type="text" class="form-control" id="txtMotivo" name="txtMotivo" maxlength="100" placeholder="Ej. Compra factura #102, Pedido telefónico, Ajuste...">
@@ -84,7 +76,6 @@
                     </div>
                 </form>
 
-                <!-- LISTA DE ARTÍCULOS CONGELADOS (ESTADO 1)modo SALIDA cuando se selecciona un cliente -->
                 <div id="seccionListaVentas" class="d-none mt-4 pt-3 border-top">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h6 class="fw-bold text-uppercase mb-0">
@@ -141,7 +132,7 @@
     </div>
 </div>
 
-<!--  MODAL 2: VER DETALLE DEL MOVIMIENTO -->
+<!-- MODAL 2: VER DETALLE DEL MOVIMIENTO -->
 <div class="modal fade" id="modalViewMovimiento" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -214,7 +205,7 @@
     </div>
 </div>
 
-<!--  MODAL 3: REGISTRAR DEVOLUCIÓN PARCIAL O TOTAL (ESTADOS 5 Y 6) -->
+<!-- MODAL 3: REGISTRAR DEVOLUCIÓN CON CANTIDAD EDITABLE (GENERA REPORTE, SIN SUMA AL STOCK) -->
 <div class="modal fade" id="modalDevolucion" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -226,32 +217,138 @@
                 <form id="formDevolucion" name="formDevolucion">
                     <input type="hidden" id="id_movimiento_dev" name="id_movimiento_dev">
 
+                    <div class="alert alert-info py-2 small mb-3">
+                        <i class="fa fa-info-circle"></i> Al confirmar se generará el <strong>Reporte de Devolución</strong> en estado <em>Pendiente Devuelto</em> hasta que bodega confirme la recepción en estado <strong>Devuelto</strong> (no se sumará al stock disponible).
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Cantidad Entregada Originalmente:</label>
                         <input type="text" class="form-control bg-light" id="txtCantidadOriginal" readonly>
                     </div>
 
                     <div class="mb-3">
-                        <label for="txtCantidadDevolver" class="form-label fw-bold">Cantidad a Devolver <span class="required">*</span></label>
+                        <label for="txtCantidadDevolver" class="form-label fw-bold">Cantidad de Unidades a Devolver <span class="required">*</span></label>
                         <input type="number" class="form-control" id="txtCantidadDevolver" name="txtCantidadDevolver" min="1" step="1" required>
-                        <small class="form-text text-muted">
-                            • Si devuelve una parte, pasará a <strong>Devolución Parcial</strong>.<br>
-                            • Si devuelve la totalidad, pasará a <strong>Devolución Total</strong>.
-                        </small>
+                        <div>
+                            <span id="badgeTipoDevolucionPreview" class="badge bg-dark mt-1">Devolución Total</span>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="txtMotivoDevolucion" class="form-label fw-bold">Motivo de la Devolución <span class="required">*</span></label>
-                        <input type="text" class="form-control" id="txtMotivoDevolucion" name="txtMotivoDevolucion" maxlength="70" required placeholder="Ej. Producto defectuoso, error en despacho...">
+                        <input type="text" class="form-control" id="txtMotivoDevolucion" name="txtMotivoDevolucion" maxlength="70" required placeholder="Ej. Producto vencido, dañado, error en despacho...">
                     </div>
 
                     <div class="modal-footer px-0 pb-0">
                         <button type="submit" class="btn btn-danger">
-                            <i class="fa fa-check"></i> Confirmar Devolución
+                            <i class="fa fa-file-text-o"></i> Registrar y Generar Reporte
                         </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 4: REPORTE / COMPROBANTE DE DEVOLUCIÓN -->
+<div class="modal fade" id="modalReporteDevolucion" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title"><i class="fa fa-file-text-o"></i> Reporte de Devolución de Inventario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="areaImpresionDevolucion">
+                    <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">COMPROBANTE DE DEVOLUCIÓN DE MERCADERÍA</h5>
+                            <span class="badge bg-secondary" id="repTipoDevolucion">DEVOLUCIÓN</span>
+                        </div>
+                        <div class="text-end">
+                            <div><strong>N° Devolución:</strong> <span id="repIdDevolucion"></span></div>
+                            <div><strong>Salida Origen:</strong> <span id="repIdSalida"></span></div>
+                            <div><strong>Fecha Devolución:</strong> <span id="repFechaDevolucion"></span></div>
+                        </div>
+                    </div>
+
+                    <div id="repAlertaStock" class="alert alert-warning py-2 mb-3"></div>
+
+                    <table class="table table-sm table-bordered mb-3">
+                        <tbody>
+                            <tr>
+                                <th style="width: 30%;" class="table-light">Cliente:</th>
+                                <td id="repCliente"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">Fecha Despacho Origen:</th>
+                                <td id="repFechaSalida"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">Producto:</th>
+                                <td id="repProducto"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">Lote:</th>
+                                <td id="repLote"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">Motivo de Devolución:</th>
+                                <td id="repMotivo"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">Registrado por:</th>
+                                <td id="repUsuario"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="table table-bordered text-center align-middle mb-4">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cant. Entregada</th>
+                                <th>Cant. Devuelta</th>
+                                <th>Cant. Conservada</th>
+                                <th>Precio Unitario</th>
+                                <th>Monto Devuelto (Ref.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="repCantOriginal"></td>
+                                <td id="repCantDevuelta" class="fw-bold text-danger fs-6"></td>
+                                <td id="repCantConservada"></td>
+                                <td id="repPrecioUnit"></td>
+                                <td id="repTotalDevuelto" class="fw-bold"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="row text-center mt-5 pt-3">
+                        <div class="col-6">
+                            <div class="border-top mx-4 pt-1">Firma Entrega (Cliente / Transporte)</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border-top mx-4 pt-1">Firma Recepción (Bodega)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <?php if (!empty($_SESSION['permisosMod']['u'])) { ?>
+                        <button type="button" id="btnConfirmarDevueltoReporte" class="btn btn-success d-none">
+                            <i class="fa fa-check-circle"></i> Confirmar Estado Devuelto
+                        </button>
+                    <?php } ?>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" onclick="imprimirReporteDevolucion();">
+                        <i class="fa fa-print"></i> Imprimir / Guardar PDF
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>

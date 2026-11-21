@@ -29,6 +29,10 @@
 <!-- Script que construye los botones HTML5 -->
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
+<!--Script graficos -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
 <!--Cargar funciones -->
 <script src="<?= media();?>js/<?= $data['page_functions_js'] ?>"></script>

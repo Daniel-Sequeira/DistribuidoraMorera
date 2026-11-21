@@ -3,7 +3,7 @@ let stockLoteSeleccionado = 0;
 const monedaSimbolo = (typeof SMONEY !== 'undefined') ? SMONEY : '';
 
 document.addEventListener('DOMContentLoaded', function () {
-    // 1. Inicializar DataTable principal (11 columnas)
+    // DataTable principal
     tableMovimientos = $('#tableMovimientos').DataTable({
         "aProcessing": true,
         "aServerSide": false,
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ]
     });
 
-    // 2. Filtros rápidos en la tabla (Tipo y Estado)
+    // Filtros rápidos en la tabla (Tipo y Estado)
     let filtroTipo = document.querySelector('#filtroTipoMovimiento');
     if (filtroTipo) {
         filtroTipo.addEventListener('change', function (e) {
@@ -75,15 +75,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 3. Cargar catálogos iniciales (Productos y Clientes)
+    //Cargar catálogos iniciales (Productos y Clientes)
     cargarSelectsIniciales();
 
-    // 4. Cambio entre ENTRADA y SALIDA en el modal
+    // Cambio entre ENTRADA y SALIDA en el modal
     document.querySelector('#listTipoMovimiento').addEventListener('change', function () {
         actualizarCamposPorTipo(this.value);
     });
 
-    // 5. Al seleccionar Cliente en modo SALIDA -> Cargar su lista congelada (Estado 1)
+    //seleccionar Cliente en mov salida carga su lista congelada (Estado 1)
     document.querySelector('#listCliente').addEventListener('change', function () {
         let tipo = document.querySelector('#listTipoMovimiento').value;
         if (tipo === 'SALIDA' && this.value !== '') {
@@ -93,12 +93,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // 6. Al seleccionar Producto -> Cargar sus lotes desde producto_lotes
+    //Al seleccionar Producto y cargar sus lotes 
     document.querySelector('#listProducto').addEventListener('change', function () {
         cargarLotesDeProducto(this.value);
     });
 
-    // 7. Al seleccionar Lote -> Mostrar stock libre y autocompletar costo/precio del lote
+    //seleccionar lote muestra stock libre y autocompleta costo/precio del lote
     document.querySelector('#listLote').addEventListener('change', function () {
         let opt = this.options[this.selectedIndex];
         stockLoteSeleccionado = parseInt(opt.getAttribute('data-libre')) || 0;
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // 8. Submit del formulario principal (ENTRADA directa o SALIDA a lista de Ventas)
+    //Submit del formulario principal (ENTRADA directa o SALIDA a lista de Ventas)
     let formMovimiento = document.querySelector("#formMovimiento");
     formMovimiento.onsubmit = function (e) {
         e.preventDefault();
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     };
 
-    // 9. Procesar Pedido de Ventas -> Pasa de Estado 1 a Estado 2 (En Proceso para Bodega)
+    //Procesar Pedido de Ventas, Estado 1 a Estado 2 (En Proceso para Bodega)
     document.querySelector('#btnProcesarVentas').addEventListener('click', function () {
         let idCliente = document.querySelector('#listCliente').value;
         if (!idCliente) return;
@@ -222,10 +222,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+    //tipo de devolucion segun cant editable ingresada
+    let inputCantDevolver = document.querySelector('#txtCantidadDevolver');
+    if (inputCantDevolver) {
+        inputCantDevolver.addEventListener('input', function () {
+            actualizarTipoDevolucionVisual();
+        });
+    }
 
-    // 10. Submit del Modal de Devolución Parcial o Total
+    //Submit del Modal de Devolución Parcial o Total que genera reporte
     document.querySelector('#formDevolucion').onsubmit = function (e) {
         e.preventDefault();
+        let cantOrig = parseInt(document.querySelector('#txtCantidadOriginal').value) || 0;
+        let cantDev  = parseInt(document.querySelector('#txtCantidadDevolver').value) || 0;
+
+        if (cantDev <= 0 || cantDev > cantOrig) {
+            swal("Cantidad inválida", `La cantidad a devolver debe estar entre 1 y ${cantOrig}.`, "warning");
+            return;
+        }
+
         let formData = new FormData(this);
 
         fetch(base_url + 'Movimientos/setDevolucion', {
@@ -240,16 +255,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 this.reset();
                 tableMovimientos.ajax.reload(null, false);
-                swal("Devolución Registrada", data.msg, "success");
+
+                // Abrir Reporte de Devolución generado
+                if (data.reporte) {
+                    mostrarReporteDevolucion(data.reporte);
+                } else {
+                    swal("Devolución Registrada", data.msg, "success");
+                }
             } else {
                 swal("Error", data.msg, "error");
             }
         });
     };
+    //confirma devuelto
+    let btnConfirmarDesdeReporte = document.querySelector('#btnConfirmarDevueltoReporte');
+    if (btnConfirmarDesdeReporte) {
+        btnConfirmarDesdeReporte.addEventListener('click', function () {
+            let idDev = this.getAttribute('data-id');
+            let cant  = this.getAttribute('data-cant');
+            if (idDev) {
+                confirmarEstadoDevuelto(idDev, cant, true);
+            }
+        });
+    }
 }, false);
 
 
-// FUNCIONES DE GESTIÓN DE LISTA PREVIA DE VENTAS (ESTADO 1 - CONGELADO)
+// Gestion lista previa a ventas (ESTADO 1 - CONGELADO)
 
 function cargarListaPreviaVentas(idCliente) {
     fetch(base_url + 'Movimientos/getListaVentas/' + idCliente)
@@ -311,7 +343,7 @@ function limpiarTablaPreviaVentas() {
     document.querySelector('#btnProcesarVentas').disabled = true;
 }
 
-// Editar cantidad al vuelo en la tabla previa de Ventas
+// Editar cantidad en la tabla previa de Ventas
 document.addEventListener('change', function (e) {
     if (e.target && e.target.classList.contains('input-cant-ventas')) {
         let input = e.target;
@@ -379,7 +411,7 @@ document.addEventListener('click', function (e) {
     }
 });
 
-// ACCIONES DE LA TABLA PRINCIPAL (VER, EDITAR LISTA, AVANZAR ESTADO, DEVOLUCIÓN)
+// Acciones TABLA PRINCIPAL ver,editar lista, avanza estado, devolver
 
 document.addEventListener('click', function (e) {
     // A. Ver Detalle del Movimiento
@@ -424,7 +456,7 @@ document.addEventListener('click', function (e) {
         };
     }
 
-    // B. Abrir modal para editar lista pendiente de Ventas (Estado 1) de un cliente
+    //Abrir modal para editar lista pendiente de Ventas
     let btnEditVentas = e.target.closest('.btnEditarListaVentas');
     if (btnEditVentas) {
         e.preventDefault();
@@ -442,7 +474,7 @@ document.addEventListener('click', function (e) {
         modalForm.show();
     }
 
-    // C. Cambiar Estado: Bodega En Proceso (2) -> Enviado (3) -> Entregado (4)
+    //Cambiar Estado: Bodega En Proceso a Enviado y Entregado
     let btnEstado = e.target.closest('.btnCambiarEstado');
     if (btnEstado) {
         e.preventDefault();
@@ -484,7 +516,7 @@ document.addEventListener('click', function (e) {
         });
     }
 
-    // D. Abrir Modal de Devolución Parcial o Total (desde Estado 4)
+    // Abrir Modal de Devolución Parcial o Total 
     let btnDev = e.target.closest('.btnDevolucion');
     if (btnDev) {
         e.preventDefault();
@@ -498,11 +530,161 @@ document.addEventListener('click', function (e) {
         let inputCantDev = document.querySelector('#txtCantidadDevolver');
         inputCantDev.value = cantOriginal;
         inputCantDev.max = cantOriginal;
+        actualizarTipoDevolucionVisual();
 
         let modalDev = bootstrap.Modal.getOrCreateInstance(document.querySelector('#modalDevolucion'));
         modalDev.show();
     }
+
+//Confirmar estado DEVUELTO (Estado 7 -> Estado 8, sin sumar al stock)
+
+    let btnConfirmDev = e.target.closest('.btnConfirmarDevuelto');
+    if (btnConfirmDev) {
+        e.preventDefault();
+        let idMov = btnConfirmDev.getAttribute('cl');
+        let cant  = btnConfirmDev.getAttribute('cant');
+        confirmarEstadoDevuelto(idMov, cant, false);
+    }
+
+    //Abrir Reporte de Devolución desde la tabla
+    let btnRepDev = e.target.closest('.btnReporteDevolucion');
+    if (btnRepDev) {
+        e.preventDefault();
+        let idMov = btnRepDev.getAttribute('cl');
+        fetch(base_url + 'Movimientos/getReporteDevolucion/' + idMov)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status && data.reporte) {
+                    mostrarReporteDevolucion(data.reporte);
+                } else {
+                    swal("Atención", data.msg || "No se encontró información del reporte.", "warning");
+                }
+            });
+    }
+
 });
+
+function confirmarEstadoDevuelto(idMovDevolucion, cantidad, cerrarModalReporte = false) {
+    swal({
+        title: "Confirmar Estado Devuelto",
+        text: `¿Confirma la recepción física de las ${cantidad} unidad(es) en bodega? El movimiento pasará a estado DEVUELTO y no se sumará al stock disponible.`,
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, marcar como Devuelto",
+        cancelButtonText: "Cancelar",
+        closeOnConfirm: false,
+        closeOnCancel: true
+    }, function (isConfirm) {
+        if (isConfirm) {
+            let formData = new FormData();
+            formData.append('id_movimiento', idMovDevolucion);
+            formData.append('estado', 8);
+
+            fetch(base_url + 'Movimientos/cambiarEstado', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status) {
+                    if (cerrarModalReporte) {
+                        let modalRep = bootstrap.Modal.getInstance(document.querySelector('#modalReporteDevolucion'));
+                        if (modalRep) modalRep.hide();
+                    }
+                    swal("Devolución Completada", data.msg, "success");
+                    tableMovimientos.ajax.reload(null, false);
+                } else {
+                    swal("Error", data.msg, "error");
+                }
+            });
+        }
+    });
+}
+
+//Render reporte devolucion
+function mostrarReporteDevolucion(rep) {
+    document.querySelector('#repIdDevolucion').textContent = '#' + rep.id_devolucion;
+    document.querySelector('#repIdSalida').textContent = '#' + rep.id_salida_origen;
+    document.querySelector('#repFechaDevolucion').textContent = rep.fecha_devolucion;
+    document.querySelector('#repFechaSalida').textContent = rep.fecha_salida || 'N/A';
+    document.querySelector('#repCliente').textContent = `${rep.identificacion_cliente} - ${rep.cliente}`;
+    document.querySelector('#repProducto').textContent = `${rep.codigo_producto} - ${rep.producto}`;
+    document.querySelector('#repLote').textContent = rep.lote;
+    document.querySelector('#repCantOriginal').textContent = rep.cantidad_original;
+    document.querySelector('#repCantDevuelta').textContent = rep.cantidad_devuelta;
+    document.querySelector('#repCantConservada').textContent = rep.cantidad_conservada;
+    document.querySelector('#repPrecioUnit').textContent = rep.precio_formato;
+    document.querySelector('#repTotalDevuelto').textContent = rep.total_formato;
+    document.querySelector('#repMotivo').textContent = rep.motivo_devolucion || 'Sin observaciones';
+    document.querySelector('#repUsuario').textContent = rep.usuario_devolucion;
+
+    let tipoTexto = (parseInt(rep.estado_salida) === 6) ? 'DEVOLUCIÓN TOTAL' : 'DEVOLUCIÓN PARCIAL';
+    document.querySelector('#repTipoDevolucion').textContent = tipoTexto;
+
+    let alertaStock = document.querySelector('#repAlertaStock');
+    let btnConfirmarRep = document.querySelector('#btnConfirmarDevueltoReporte');
+
+    if (parseInt(rep.estado_devolucion) === 8) {
+        alertaStock.className = 'alert alert-success py-2 mb-3';
+        alertaStock.innerHTML = '<i class="fa fa-check-circle"></i> <strong>ESTADO: DEVUELTO</strong> — Recepción física confirmada por bodega (sin suma al stock disponible).';
+        btnConfirmarRep.classList.add('d-none');
+    } else {
+        alertaStock.className = 'alert alert-warning py-2 mb-3';
+        alertaStock.innerHTML = '<i class="fa fa-clock-o"></i> <strong>ESTADO: PENDIENTE DEVUELTO</strong> — Pendiente de recepción física en bodega para confirmar estado <strong>Devuelto</strong> (no se sumará al stock disponible).';
+        btnConfirmarRep.classList.remove('d-none');
+        btnConfirmarRep.setAttribute('data-id', rep.id_devolucion);
+        btnConfirmarRep.setAttribute('data-cant', rep.cantidad_devuelta);
+    }
+
+    let modalRep = bootstrap.Modal.getOrCreateInstance(document.querySelector('#modalReporteDevolucion'));
+    modalRep.show();
+}
+
+//PDF Reportye dev
+function imprimirReporteDevolucion() {
+    let contenido = document.querySelector('#areaImpresionDevolucion').innerHTML;
+    let ventanaPrint = window.open('', '_blank', 'width=900,height=700');
+    ventanaPrint.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Reporte de Devolución de Mercadería</title>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+            <style>
+                body { padding: 25px; font-size: 13px; }
+                .no-print { display: none !important; }
+            </style>
+        </head>
+        <body>
+            ${contenido}
+            <script>
+                window.onload = function() { window.print(); window.close(); };
+            <\/script>
+        </body>
+        </html>
+    `);
+    ventanaPrint.document.close();
+}
+
+function actualizarTipoDevolucionVisual() {
+    let cantOrig = parseInt(document.querySelector('#txtCantidadOriginal').value) || 0;
+    let cantDev  = parseInt(document.querySelector('#txtCantidadDevolver').value) || 0;
+    let badgeTipo = document.querySelector('#badgeTipoDevolucionPreview');
+    if (!badgeTipo) return;
+
+    if (cantDev > 0 && cantDev < cantOrig) {
+        badgeTipo.className = 'badge bg-danger mt-1';
+        badgeTipo.textContent = `Devolución Parcial (${cantDev} de ${cantOrig} unidades)`;
+    } else if (cantDev === cantOrig && cantOrig > 0) {
+        badgeTipo.className = 'badge bg-dark mt-1';
+        badgeTipo.textContent = `Devolución Total (${cantDev} de ${cantOrig} unidades)`;
+    } else {
+        badgeTipo.className = 'badge bg-secondary mt-1';
+        badgeTipo.textContent = 'Ingrese una cantidad válida';
+    }
+}
+
 
 
 // FUNCIONES AUXILIARES DE FORMULARIO Y SELECTS
@@ -516,7 +698,7 @@ function actualizarCamposPorTipo(tipo) {
     let seccionVentas = document.querySelector('#seccionListaVentas');
     let btnText = document.querySelector('#btnText');
 
-    if (tipo === 'SALIDA') {
+   if (tipo === 'SALIDA') {
         divCliente.classList.remove('d-none');
         selectCliente.setAttribute('required', 'required');
 
