@@ -60,8 +60,85 @@ class DashboardModel extends Pgsql {
     return $request;
 }
 
+public function selectTipoMovMes(int $anio, int $mes)
+{
+    $intAnio = intval($anio);
+    $intMes  = intval($mes);
 
+    $sql = "WITH movimientos_mes AS (
+    SELECT 
+        CASE 
+            WHEN m.tipo_movimiento = 'ENTRADA' AND m.estado IN (7, 8) THEN 'DEVOLUCION'
+            ELSE m.tipo_movimiento
+        END AS tipo_movimiento,
+        m.cantidad,
+        CASE 
+            WHEN m.tipo_movimiento = 'ENTRADA' AND m.estado IN (7, 8) 
+                THEN m.cantidad * COALESCE(sal.precio_unitario, 0)
+            WHEN m.tipo_movimiento = 'ENTRADA' 
+                THEN m.cantidad * m.costo_unitario
+            ELSE m.cantidad * m.precio_unitario
+        END AS subtotal
+    FROM movimientos_inventario m
+    LEFT JOIN movimientos_inventario sal 
+        ON sal.id_movimiento = COALESCE(
+            m.id_movimiento_origen,
+            NULLIF(SUBSTRING(m.motivo FROM '^Devolución Salida #([0-9]+):'), '')::INT
+        )
+    WHERE EXTRACT(YEAR FROM m.fecha_movimiento) = $intAnio
+      AND EXTRACT(MONTH FROM m.fecha_movimiento) = $intMes
+)
+SELECT 
+    tipo_movimiento,
+    COUNT(*) AS total_movimientos,
+    COALESCE(SUM(cantidad), 0) AS total_unidades,
+    COALESCE(SUM(subtotal), 0) AS total_monto
+FROM movimientos_mes
+GROUP BY tipo_movimiento
+ORDER BY tipo_movimiento ASC";
+    $request = $this->select_all($sql);
+    $meses = Meses();
+    return [
+        'anio'  => $intAnio,
+        'mes'   => $meses[intval($intMes-1)],
+        'datos' => $request
+    ];
+}
 
+public function selectVersusDia(int $anio, int $mes)
+{
+    $intAnio = intval($anio);
+    $intMes  = intval($mes);
+
+    $sql = "WITH dias_mes AS (
+                SELECT generate_series(
+                    MAKE_DATE($intAnio, $intMes, 1),
+                    (MAKE_DATE($intAnio, $intMes, 1) + INTERVAL '1 month - 1 day')::date,
+                    INTERVAL '1 day'
+                )::date AS fecha
+            )
+            SELECT 
+                EXTRACT(DAY FROM d.fecha)::INT AS dia,
+                TO_CHAR(d.fecha, 'DD/MM/YYYY') AS fecha_formato,
+                COUNT(m.id_movimiento) AS total_recibidos,
+                COUNT(m.id_movimiento) FILTER (WHERE m.estado = 4) AS total_entregas,
+                COALESCE(SUM(m.cantidad), 0) AS unidades_recibidas,
+                COALESCE(SUM(m.cantidad) FILTER (WHERE m.estado = 4), 0) AS unidades_entregadas
+            FROM dias_mes d
+            LEFT JOIN movimientos_inventario m 
+                ON m.fecha_movimiento::date = d.fecha
+                AND m.tipo_movimiento = 'SALIDA'
+            GROUP BY d.fecha
+            ORDER BY d.fecha ASC";
+
+    $request = $this->select_all($sql);
+
+    return [
+        'anio'  => $intAnio,
+        'mes'   => $intMes,
+        'datos' => $request
+    ];
+}
 
 
   

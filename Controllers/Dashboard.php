@@ -25,7 +25,13 @@ public function dashboard()
    $data['productos'] = $this->model->cantProductos();
    $data['movimientos'] = $this->model->cantMovimientosPend();
    $data['ultimosMovimientos'] = $this->model->ultimosMovimientos();
-   //dep($data['ultimosMovimientos']); exit;
+  
+   $anio = date('Y');
+   $mes = date ('m');
+   $data['tipoMovMes'] = $this-> model->selectTipoMovMes($anio,$mes);
+   $data['versusMov'] = $this->model->selectVersusDia($anio, $mes);
+   
+
   
   
   

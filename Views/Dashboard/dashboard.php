@@ -141,14 +141,18 @@ headerAdmin($data);
     <!-- Gráfico 1 (Izquierda) -->
     <div class="col-md-6">
       <div class="tile">
-        <h3 class="tile-title">Movimientos por día</h3>
+        <div class="conatainer-title">
+            <h3 class="tile-title">Análisis de movimientos por día</h3>
+        </div>
         <div id="movimientosDia"></div>
       </div>
     </div>
     <!-- Gráfico 2 (Derecha) -->
     <div class="col-md-6">
       <div class="tile">
-        <h3 class="tile-title">Movimientos por mes</h3>
+        <div class="conatainer-title">
+           <h3 class="tile-title">Análisis de movimientos por mes</h3>
+        </div>
         <div id="movimientosMesAnio"></div>
       </div>
     </div>
@@ -168,15 +172,15 @@ footerAdmin($data);
     },
 
     title: {
-      text: 'Support requests'
+      text: 'Movimientos, <?= $data['tipoMovMes']['mes'].'_'.$data['tipoMovMes']['anio'] ?>'
     },
 
     palette: {
       light: {
-        colors: ['#014CE5', '#A5AFB6', '#D6DBDE', '#E8EEF1', '#F5FCFF']
+        colors: ['#e50101', '#1250e1', '#0b8c43', '#034902', '#034902']
       },
       dark: {
-        colors: ['#216AFF', '#AABAC4', '#929FA7', '#818C93', '#697278']
+        colors: ['#e50101', '#1250e1', '#0b8c43', '#034902', '#034902']
       }
     },
 
@@ -185,7 +189,7 @@ footerAdmin($data);
     },
 
     series: [{
-      name: 'Requests',
+      name: 'Representa',
       // We can show multiple data labels per point
       dataLabels: [{
           format: '{point.name}',
@@ -202,14 +206,32 @@ footerAdmin($data);
         }
       ],
       data: [
-        ['Webform', 55],
-        ['Call', 17],
-        ['Email', 7],
-        ['Webchat', 5],
-        ['Other', 3]
+       <?php 
+        if (!empty($data['tipoMovMes']['datos'])) {
+            foreach ($data['tipoMovMes']['datos'] as $mov) {
+                echo "{ name: '" . $mov['tipo_movimiento'] . "', y: " . intval($mov['total_movimientos']) . " },";
+            }
+        }
+        ?>
       ]
     }]
   });
+</script>
+<!--Graf lineas-->
+<?php
+$fechasDia   = [];
+$recibidosDia = [];
+$entregasDia = [];
+
+if (!empty($data['versusMov']['datos'])) {
+    foreach ($data['versusMov']['datos'] as $row) {
+        $fechasDia[]    = $row['fecha_formato'];
+        $recibidosDia[] = intval($row['total_recibidos']);
+        $entregasDia[]  = intval($row['total_entregas']);
+    }
+}
+?>
+<script>
   Highcharts.chart('movimientosDia', {
     chart: {
       plotBorderColor: 'var(--highcharts-neutral-color-10, #e6e6e6)',
@@ -218,28 +240,28 @@ footerAdmin($data);
     },
 
     title: {
-      text: 'Application users last 24 hours',
+      text: 'Salidas Entregadas por Día (<?= $data['versusMov']['mes'] . '/' . $data['versusMov']['anio'] ?>)',
       align: 'left'
     },
 
     subtitle: {
-      text: 'All traffic sources combined'
+      text: 'Comparativa diaria de salidas registradas frente a entregas completadas',
+      align: 'left'
     },
 
     yAxis: {
+      allowDecimals: false,
       title: {
-        text: 'Unique users'
+        text: 'Cantidad de Movimientos'
       }
     },
 
     xAxis: {
-      type: 'datetime',
+      categories: <?= json_encode($fechasDia) ?>,
       crosshair: true,
-      dateTimeLabelFormats: {
-        // Don't show the date
-        day: {
-          boundary: '%H:%M',
-          main: '%H:%M'
+      labels: {
+        formatter: function () {
+          return String(this.value).split('/')[0];
         }
       },
       lineWidth: 0,
@@ -248,13 +270,13 @@ footerAdmin($data);
     },
 
     legend: {
-      enabled: false
+      enabled: true
     },
 
     tooltip: {
       shared: true,
       headerFormat: `<table>
-            <caption>{point.x:%[HM]} → {(add point.x 3540000):%[HM]}</caption>`,
+            <caption>Fecha: <strong>{point.key}</strong></caption>`,
       pointFormat: `
         <tr>
           <th>
@@ -264,20 +286,15 @@ footerAdmin($data);
             </svg>
             {series.name}
           </th>
-          <td>{point.y}</td>
+          <td><strong>{point.y}</strong></td>
         </tr>
         `,
       footerFormat: '</table>',
       useHTML: true
     },
 
-    // Common options for all series
     plotOptions: {
       series: {
-        // There are many ways to handle time data in Highcharts.
-        // This way we omit the timestamp from each data point, and
-        // rely on each data point being one hour apart.
-        pointInterval: 36e5, // one hour
         marker: {
           enabled: false
         }
@@ -285,65 +302,15 @@ footerAdmin($data);
     },
 
     series: [{
-        name: 'Users',
+        name: 'Entregas Exitosas',
         color: 'light-dark(#0097FF, #27A6FE)',
-        data: [
-          990,
-          652,
-          965,
-          1048,
-          939,
-          1012,
-          2089,
-          3995,
-          4123,
-          4302,
-          5289,
-          6115,
-          7723,
-          8162,
-          10089,
-          7812,
-          4127,
-          3812,
-          4156,
-          3805,
-          2958,
-          1984,
-          1432,
-          1299
-        ]
+        data: <?= json_encode($entregasDia) ?>
       },
       {
-        name: 'Average',
+        name: 'Pedidos Recibidos',
         color: '#8791BA',
         dashStyle: 'ShortDot',
-        data: [
-          865,
-          832,
-          775,
-          728,
-          779,
-          812,
-          989,
-          1095,
-          1623,
-          2102,
-          2289,
-          2315,
-          2412,
-          2662,
-          3089,
-          2812,
-          2427,
-          2112,
-          2356,
-          2305,
-          1858,
-          1084,
-          932,
-          899
-        ]
+        data: <?= json_encode($recibidosDia) ?>
       }
     ]
   });

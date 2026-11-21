@@ -173,6 +173,23 @@ function formatMoney($cantidad)
     return $cantidad;
 }
 
+//Retorna meses en letras 
+function Meses(){
+    $meses = array ("Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Setiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre");
+    return $meses;                
+}
+
 
 
 
