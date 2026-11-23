@@ -1,0 +1,203 @@
+[33mcommit aa65a99f18f972a7033b0180a3eee1f9df94a11b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Nov 20 22:25:34 2026 -0600
+
+    Dashboard graficos
+
+[33mcommit 7a6ca504d7dd2d8543f5555dd3bd0f3b54a8ed9c[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Nov 20 20:18:32 2026 -0600
+
+    Reportes Movimientos prod
+
+[33mcommit e1382cdc1e7b0a7ad9f37b1ca063846f5b4b304d[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Thu Nov 19 20:41:34 2026 -0600
+
+    Reportes en dashboard
+
+[33mcommit 1db1f65771b14d6394ab8eba782d40a53165a7d4[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Thu Nov 19 09:36:04 2026 -0600
+
+    Modulo movimientos inventario E/S
+
+[33mcommit 77c6e1bf49dcaeb2015f65233a91067e82854f30[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Wed Nov 18 19:39:09 2026 -0600
+
+    Correcion refrescar vista estanterias y modulo productos
+
+[33mcommit 6b2eba1929c9ae38767daea1388b186b81fc4794[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sun Nov 15 22:31:12 2026 -0600
+
+    seguridad modulo estanterias
+
+[33mcommit 9cbba0b498d8d6b4c2b5368cd76904f64bd7fff9[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sat Nov 14 22:00:55 2026 -0600
+
+    Estanterias ver en data table ok
+
+[33mcommit 219711e0a778b61dffbe45a8c8235717943c2f41[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Nov 13 22:07:55 2026 -0600
+
+    Mod Usuarios y Clientes flitros gestion ok
+
+[33mcommit 8352d319097f295efc0b3a9b20ae394aa85748f6[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Thu Nov 12 22:24:33 2026 -0600
+
+    insertCliente ok
+
+[33mcommit f10476ae3f82137a91f08318a7698d97b8602068[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sat Nov 7 22:31:33 2026 -0600
+
+    Edicion modal perfil usuario
+
+[33mcommit c728fd4f6cb58d0f848424bf77176791afecc382[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Thu Nov 5 16:33:48 2026 -0600
+
+    COnfiguracion acciones usuarios y roles
+
+[33mcommit 3708a12a9096db4215dd4a40c6f07813ccb52b30[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Thu Nov 5 14:39:06 2026 -0600
+
+    Acceso modulos ok
+
+[33mcommit 0650f630ffd36a43b17574e8ee570f9f06d27904[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Wed Nov 4 18:16:55 2026 -0600
+
+    Login, recuperar pass,efectoloading
+
+[33mcommit 071880b11efa7fd06a45f51c51d3fdc3a67a88f7[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Tue Nov 3 19:55:10 2026 -0600
+
+    Validacion token y actualizar contrasena
+
+[33mcommit ae273af892d91df3ed02f5b0dbfb5715d6c6fb20[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Mon Nov 2 21:12:43 2026 -0600
+
+    form cambio contrasena y generar token
+
+[33mcommit 88e22f4b19b04a5933f5bed463c8bae7716985d7[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sun Nov 1 19:33:27 2026 -0600
+
+    Form Login y variable session
+
+[33mcommit 4a12e0019b95cd17aad7ee6156c066e1f14a2dab[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sun Nov 1 16:58:23 2026 -0600
+
+    Sistema Usuarios y validaciones ok
+
+[33mcommit 2fac7d65af2c27062dc18ab0ed0320709310429f[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sat Oct 31 17:51:44 2026 -0600
+
+    Acciones ver y editar usuarios ok
+
+[33mcommit 6816571b0dd2ac54397e5fc22ab759c64aca6631[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Oct 30 20:20:58 2026 -0600
+
+    Envio lista usuarios a data table
+
+[33mcommit a0f3d2352bb65cd3549b5c1c04b714e2288997cb[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Oct 30 18:25:59 2026 -0600
+
+    Isertar Nuevo usuario
+
+[33mcommit cb28cf676ff0cc4557ce8d28dbefba7fe580b4bc[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Thu Oct 29 08:14:40 2026 -0600
+
+    Diseno form usuarios
+
+[33mcommit 2cee9c610fe9bfcb5fc6f2ff6d8e33a8196de9ec[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Thu Oct 29 07:00:52 2026 -0600
+
+    Gestion roles permisos modulos terminado
+
+[33mcommit 3fff3d3400da7f817fb6aeea0ac391eb98e03abf[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sat Oct 24 20:47:52 2026 -0600
+
+    Pagina inicio logo
+
+[33mcommit a9a0eb53e92d06e0d4c4b3305d3afa86d4193812[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Oct 23 10:17:31 2026 -0600
+
+    Gestion de permisos en proceso
+
+[33mcommit f88f133bd13d4d4eaf97914818d3ce8312298315[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Oct 23 04:47:05 2026 -0600
+
+    Acciones Roles y validacion
+
+[33mcommit f934bee1ee5dfe37d681f12dad2fb281b46e0193[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Tue Oct 20 21:09:27 2026 -0600
+
+    Data table Roles implementada
+
+[33mcommit 36e44ba70fbe4df4fd4f77846a01eec0bdcc5702[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sat Oct 17 10:31:13 2026 -0600
+
+    Modal Roles
+
+[33mcommit d4940d2d4a89c19b62795e070bf2e4478013aab6[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Oct 16 07:20:52 2026 -0600
+
+    Estructura dashboard admin
+
+[33mcommit 3ef26cc240ba9a9ab406ab859fbaa21f63eece00[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Oct 16 04:05:02 2026 -0600
+
+    etiquetado pag inicio
+
+[33mcommit 3c8717e1121499737622abecadb4a799b717dd50[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Fri Oct 16 03:50:46 2026 -0600
+
+    Landing page optimizada imagen
+
+[33mcommit a5cf4f49d2120ec24b3a37a744286a1f9bca0bbd[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Tue Oct 13 20:41:38 2026 -0600
+
+    Inicio Landing page bootstrap
+
+[33mcommit c0dd80014af532292f1f4dd3663536b4097ee9df[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Tue Oct 13 18:43:14 2026 -0600
+
+    Funciones Helpers
+
+[33mcommit 3aa1a078a7231942c0e492b4999ce9d1eaee8dba[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Mon Oct 12 20:42:36 2026 -0600
+
+    Coneccion BD y metodos globales SQL
+
+[33mcommit 06ca97b961c9fd3a5c9cddb2d1aeba624031663b[m
+Author: ¨Daniel <danielsequeira22@gmail.com>
+Date:   Sun Oct 11 20:50:59 2026 -0600
+
+    Base funcion MVC DM

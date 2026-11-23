@@ -86,7 +86,7 @@ class Movimientos extends Controllers
                 }
                 // Botón para confirmar estado DEVUELTO (reintegra stock) en ENTRADA pendiente de devolución
                 if ($tipo === 'ENTRADA' && $estado === 7 && !empty($_SESSION['permisosMod']['u'])) {
-                    $botones .= '<button class="btn btn-success btn-sm btnConfirmarDevuelto" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Pasar a Devuelto (Reintegrar Stock)"><i class="fa fa-check-square-o"></i></button> ';
+                    $botones .= '<button class="btn btn-success btn-sm btnConfirmarDevuelto" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Pasar a Devuelto "><i class="fa fa-check-square-o"></i></button> ';
                 }
 
                 // Botón para confirmar Devolucion  

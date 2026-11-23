@@ -49,7 +49,7 @@ class DashboardModel extends Pgsql {
                     WHEN 4 THEN '<span class=\"badge bg-success\">Entregado</span>'
                     WHEN 5 THEN '<span class=\"badge bg-danger\">Devolución Parcial</span>'
                     WHEN 6 THEN '<span class=\"badge bg-dark\">Devolución Total</span>'
-                    ELSE '<span class=\"badge bg-light text-dark\">Desconocido</span>'
+                    ELSE '<span class=\"badge bg-light text-dark\">Devuelto</span>'
                 END AS estado_badge
             FROM movimientos_inventario m
             INNER JOIN clientes c ON m.id_cliente = c.id_cliente

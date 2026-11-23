@@ -91,7 +91,7 @@ class ProductosModel extends Pgsql
         if ($idProducto > 0) {
             // 2. Insertar primer lote en cola FIFO
             $queryLote = "INSERT INTO producto_lotes (id_producto, codigo_lote, cantidad_inicial, cantidad_disponible, costo_unitario, precio_venta_sugerido,fecha_vencimiento ,estado)
-                          VALUES (?, ?, ?, ?, ?, ?,?, 1)";
+                          VALUES (?, ?, ?, ?, ?, ?,?,?)";
             $arrLote = array($idProducto, $codigoLote, $stock, $stock, $costoUnitario, $precio);
             $idLote = $this->insert($queryLote, $arrLote);
 
