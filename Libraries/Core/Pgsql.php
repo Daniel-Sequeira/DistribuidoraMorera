@@ -29,13 +29,14 @@ class Pgsql extends Conexion
    }
 
    //Buscar un registro
-   public function select(string $query)
+   public function select(string $query, array $arrValues=[])
    {
       $this->strquery = $query;
       $result = $this->conexion->prepare($this->strquery);
-      $result->execute();
-      $data = $result->fetch(PDO::FETCH_ASSOC);
+      $result->execute($arrValues);
+      $data= $result->fetch(PDO::FETCH_ASSOC);
       return $data;
+      
    }
 
     //Buscar varios registros
