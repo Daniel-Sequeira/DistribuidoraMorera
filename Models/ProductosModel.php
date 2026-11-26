@@ -76,36 +76,64 @@ class ProductosModel extends Pgsql
         int $idUsuario,
         ?string $fechaVencimiento = null
     ) {
-        $sqlCheck = "SELECT id_producto FROM productos WHERE codigo = '$codigo'";
-        $requestCheck = $this->select_all($sqlCheck);
+        $codigo = trim($codigo);
+        $codigoLote = trim($codigoLote);
+
+        $sqlCheck = "SELECT id_producto FROM productos WHERE codigo = ?";
+        $requestCheck = $this->select($sqlCheck, [$codigo]);
         if (!empty($requestCheck)) {
             return 'exist';
         }
 
-        // 1. Insertar producto maestro
-        $queryProd = "INSERT INTO productos (id_estanteria, id_proveedor, codigo, nombre, descripcion, precio, stock, estado)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        $arrProd = array($idEstanteria, $idProveedor, $codigo, $nombre, $descripcion, $precio, $stock, $estado);
-        $idProducto = $this->insert($queryProd, $arrProd);
+        try {
+            $this->beginTransaction();
 
-        if ($idProducto > 0) {
+            // 1. Insertar producto maestro
+            $queryProd = "INSERT INTO productos (id_estanteria, id_proveedor, codigo, nombre, descripcion, precio, stock, estado)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $arrProd = [$idEstanteria, $idProveedor, $codigo, $nombre, $descripcion, $precio, $stock, $estado];
+            $idProducto = $this->insert($queryProd, $arrProd);
+
+            if ($idProducto <= 0) {
+                $this->rollBack();
+                return 0;
+            }
+
             // 2. Insertar primer lote en cola FIFO
-            $queryLote = "INSERT INTO producto_lotes (id_producto, codigo_lote, cantidad_inicial, cantidad_disponible, costo_unitario, precio_venta_sugerido,fecha_vencimiento ,estado)
-                          VALUES (?, ?, ?, ?, ?, ?,?,?)";
-            $arrLote = array($idProducto, $codigoLote, $stock, $stock, $costoUnitario, $precio);
+            $queryLote = "INSERT INTO producto_lotes (id_producto, codigo_lote, cantidad_inicial, cantidad_disponible, costo_unitario, precio_venta_sugerido, fecha_vencimiento, estado)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $arrLote = [
+                $idProducto,
+                $codigoLote,
+                $stock,
+                $stock,
+                $costoUnitario,
+                $precio,
+                $fechaVencimiento,
+                $estado
+            ];
             $idLote = $this->insert($queryLote, $arrLote);
 
-            // 3. Registrar movimiento inicial de ENTRADA (id_cliente es NULL)
-            if ($idLote > 0) {
-                $queryMov = "INSERT INTO movimientos_inventario (id_producto, id_lote, id_usuario, id_cliente, tipo_movimiento, cantidad, costo_unitario, precio_unitario, motivo)
-                             VALUES (?, ?, ?, NULL, 'ENTRADA', ?, ?, ?, ?)";
-                $arrMov = array($idProducto, $idLote, $idUsuario, $stock, $costoUnitario, $precio, 'Inventario inicial');
-                $this->insert($queryMov, $arrMov);
+            if ($idLote <= 0) {
+                $this->rollBack();
+                return 0;
             }
-        }
 
-        return $idProducto;
+            // 3. Registrar movimiento inicial de ENTRADA
+            $queryMov = "INSERT INTO movimientos_inventario (id_producto, id_lote, id_usuario, id_cliente, tipo_movimiento, cantidad, costo_unitario, precio_unitario, motivo)
+                         VALUES (?, ?, ?, NULL, 'ENTRADA', ?, ?, ?, ?)";
+            $arrMov = [$idProducto, $idLote, $idUsuario, $stock, $costoUnitario, $precio, 'Inventario inicial'];
+            $this->insert($queryMov, $arrMov);
+
+            $this->commit();
+            return $idProducto;
+
+        } catch (Throwable $e) {
+            $this->rollBack();
+            throw $e;
+        }
     }
+
 
     public function updateProducto(
         int $idProducto,

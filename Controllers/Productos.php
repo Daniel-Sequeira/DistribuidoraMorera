@@ -85,8 +85,10 @@ class Productos extends Controllers
     public function setProducto()
     {
         if ($_POST) {
+            header('Content-Type: application/json; charset=utf-8');
+
             if (empty($_POST['txtNombre']) || empty($_POST['listProveedor']) || empty($_POST['listEstanteria']) || empty($_POST['txtCodigo']) || empty($_POST['txtPrecio'])) {
-                $arrResponse = array("status" => false, "msg" => "Datos incompletos en el formulario.");
+                $arrResponse = ["status" => false, "msg" => "Datos incompletos en el formulario."];
             } else {
                 $idProducto   = intval($_POST['id_producto'] ?? 0);
                 $strNombre    = strClean($_POST['txtNombre']);
@@ -98,68 +100,80 @@ class Productos extends Controllers
                 $intEstado    = intval($_POST['listStatus']);
                 $idUsuario    = intval($_SESSION['idUser'] ?? $_SESSION['userData']['id_usuario'] ?? 1);
 
-                if ($idProducto == 0) {
-                    // CREAR PRODUCTO NUEVO + LOTE INICIAL + MOVIMIENTO ENTRADA
-                    if (empty($_SESSION['permisosMod']['w'])) {
-                        die();
-                    }
-                    $strLote  = strClean($_POST['txtLote'] ?? '');
-                    $decCosto = floatval($_POST['txtCosto'] ?? 0);
-                    $intStock = intval($_POST['txtStock'] ?? 0);
-                    $strFechaVencimiento = !empty($_POST['txtFechaVencimiento']) ? strClean($_POST['txtFechaVencimiento']) : null;
+                try {
+                    if ($idProducto == 0) {
+                        // CREAR PRODUCTO NUEVO + LOTE INICIAL + MOVIMIENTO ENTRADA
+                        if (empty($_SESSION['permisosMod']['w'])) {
+                            die();
+                        }
+                        $strLote  = strClean($_POST['txtLote'] ?? '');
+                        $decCosto = floatval($_POST['txtCosto'] ?? 0);
+                        $intStock = intval($_POST['txtStock'] ?? 0);
+                        $strFechaVencimiento = !empty($_POST['txtFechaVencimiento']) ? strClean($_POST['txtFechaVencimiento']) : null;
 
-                    if (empty($strLote) || $intStock <= 0) {
-                        $arrResponse = array("status" => false, "msg" => "Debe indicar un código de lote y cantidad inicial mayor a 0.");
-                    } else {
-                        $request = $this->model->insertProductoFIFO(
+                        if (empty($strLote) || $intStock <= 0) {
+                            $arrResponse = ["status" => false, "msg" => "Debe indicar un código de lote y cantidad inicial mayor a 0."];
+                        } else {
+                            $request = $this->model->insertProductoFIFO(
+                                $intEstante,
+                                $intProveedor,
+                                $strCodigo,
+                                $strNombre,
+                                $strDesc,
+                                $decPrecio,
+                                $intStock,
+                                $intEstado,
+                                $strLote,
+                                $decCosto,
+                                $idUsuario,
+                                $strFechaVencimiento
+                            );
+
+                            if ($request === 'exist') {
+                                $arrResponse = [
+                                    'status' => false,
+                                    'msg'    => 'Solo se pueden registrar productos nuevos; para editar existentes diríjase a movimientos.'
+                                ];
+                            } elseif (is_numeric($request) && (int)$request > 0) {
+                                $arrResponse = [
+                                    'status' => true,
+                                    'msg'    => 'Producto y lote inicial registrados correctamente.'
+                                ];
+                            } else {
+                                $arrResponse = [
+                                    'status' => false,
+                                    'msg'    => 'No fue posible almacenar los datos.'
+                                ];
+                            }
+                        } // <-- Faltaba esta llave de cierre
+                    } else { // <-- Y faltaba este "} else {" para separar crear de actualizar
+                        // ACTUALIZAR DATOS DEL CATÁLOGO Y PRECIO VIGENTE (sin tocar lotes ni stock)
+                        if (empty($_SESSION['permisosMod']['u'])) {
+                            die();
+                        }
+                        $request = $this->model->updateProducto(
+                            $idProducto,
                             $intEstante,
                             $intProveedor,
                             $strCodigo,
                             $strNombre,
                             $strDesc,
                             $decPrecio,
-                            $intStock,
-                            $intEstado,
-                            $strLote,
-                            $decCosto,
-                            $idUsuario,
-                            $strFechaVencimiento
+                            $intEstado
                         );
 
-                        if ($request > 0) {
-                            $arrResponse = array('status' => true, 'msg' => 'Producto y lote inicial registrados correctamente.');
-                        } elseif ($request === 'exist') {
-                            $arrResponse = array('status' => false, 'msg' => 'Atención: Ya existe un producto con ese código.');
+                        if ($request === 'exist') {
+                            $arrResponse = ['status' => false, 'msg' => 'Atención: Ese código ya pertenece a otro producto.'];
+                        } elseif ($request) {
+                            $arrResponse = ['status' => true, 'msg' => 'Producto actualizado correctamente.'];
                         } else {
-                            $arrResponse = array("status" => false, "msg" => "No fue posible almacenar los datos.");
+                            $arrResponse = ['status' => false, 'msg' => 'No fue posible actualizar los datos.'];
                         }
                     }
-                } else {
-                    // ACTUALIZAR DATOS DEL CATÁLOGO Y PRECIO VIGENTE (sin tocar lotes ni stock)
-                    if (empty($_SESSION['permisosMod']['u'])) {
-                        die();
-                    }
-                    $request = $this->model->updateProducto(
-                        $idProducto,
-                        $intEstante,
-                        $intProveedor,
-                        $strCodigo,
-                        $strNombre,
-                        $strDesc,
-                        $decPrecio,
-                        $intEstado
-                    );
-
-                    if ($request > 0) {
-                        $arrResponse = array('status' => true, 'msg' => 'Producto actualizado correctamente.');
-                    } elseif ($request === 'exist') {
-                        $arrResponse = array('status' => false, 'msg' => 'Atención: Ese código ya pertenece a otro producto.');
-                    } else {
-                        $arrResponse = array("status" => false, "msg" => "No fue posible actualizar los datos.");
-                    }
+                } catch (Throwable $e) {
+                    $arrResponse = ["status" => false, "msg" => "Error interno: " . $e->getMessage()];
                 }
             }
-            header('Content-Type: application/json; charset=utf-8');
             echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
         }
         die();

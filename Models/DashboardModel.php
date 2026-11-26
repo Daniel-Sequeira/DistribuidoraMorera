@@ -141,6 +141,106 @@ public function selectVersusDia(int $anio, int $mes)
 }
 
 
+public function selectProductosAlerta()
+{
+    $sql = "SELECT 
+                p.id_producto,
+                p.codigo,
+                p.nombre,
+                COALESCE(pr.nombre_razon_social, 'Sin proveedor') AS proveedor,
+                p.stock,
+                lotes.codigo_lote,
+                lotes.proxima_caducidad AS fecha_vencimiento,
+                CONCAT_WS(' ',
+                    CASE 
+                        WHEN p.stock <= 100 
+                        THEN '<span class=\"badge bg-danger\">Stock Mínimo</span>' 
+                    END,
+                    CASE 
+                        WHEN lotes.proxima_caducidad IS NOT NULL 
+                             AND lotes.proxima_caducidad < CURRENT_DATE 
+                        THEN '<span class=\"badge bg-danger\" title=\"Lote: ' 
+                             || lotes.codigo_lote 
+                             || ' | Venció: ' 
+                             || TO_CHAR(lotes.proxima_caducidad, 'DD/MM/YYYY') 
+                             || '\">Producto Vencido (' 
+                             || lotes.codigo_lote 
+                             || ' - ' 
+                             || TO_CHAR(lotes.proxima_caducidad, 'DD/MM/YYYY') 
+                             || ')</span>'
+                        WHEN lotes.proxima_caducidad IS NOT NULL 
+                             AND lotes.proxima_caducidad <= (CURRENT_DATE + INTERVAL '6 months') 
+                        THEN '<span class=\"badge bg-warning text-dark\" title=\"Lote: ' 
+                             || lotes.codigo_lote 
+                             || ' | Vence: ' 
+                             || TO_CHAR(lotes.proxima_caducidad, 'DD/MM/YYYY') 
+                             || '\">Alerta Caducidad (' 
+                             || lotes.codigo_lote 
+                             || ' - ' 
+                             || TO_CHAR(lotes.proxima_caducidad, 'DD/MM/YYYY') 
+                             || ')</span>'
+                    END
+                ) AS estado_badge
+            FROM productos p
+            LEFT JOIN proveedores pr ON p.id_proveedor = pr.id_proveedor
+            LEFT JOIN (
+                SELECT DISTINCT ON (id_producto)
+                    id_producto,
+                    codigo_lote,
+                    fecha_vencimiento AS proxima_caducidad
+                FROM producto_lotes
+                WHERE estado = 1
+                  AND cantidad_disponible > 0
+                  AND fecha_vencimiento IS NOT NULL
+                ORDER BY id_producto, fecha_vencimiento ASC, id_lote ASC
+            ) lotes ON p.id_producto = lotes.id_producto
+            WHERE p.estado = 1
+              AND (
+                  p.stock <= 100 
+                  OR (lotes.proxima_caducidad IS NOT NULL AND lotes.proxima_caducidad <= (CURRENT_DATE + INTERVAL '6 months'))
+              )
+            ORDER BY p.stock ASC, lotes.proxima_caducidad ASC";
+
+    $request = $this->select_all($sql);
+    return $request;
+}
+
+public function selectProductoInfo(int $idProducto)
+{
+    $intIdProducto = intval($idProducto);
+    $sql = "SELECT id_producto, codigo, nombre, stock 
+            FROM productos 
+            WHERE id_producto = $intIdProducto AND estado = 1";
+    return $this->select($sql);
+}
+
+public function selectLotesProducto(int $idProducto)
+{
+    $intIdProducto = intval($idProducto);
+    $sql = "SELECT 
+                id_lote,
+                codigo_lote,
+                cantidad_disponible,
+                cantidad_reservada,
+                COALESCE(TO_CHAR(fecha_vencimiento, 'DD/MM/YYYY'), 'Sin fecha') AS fecha_vencimiento,
+                CASE 
+                    WHEN fecha_vencimiento IS NULL 
+                        THEN '<span class=\"badge bg-secondary\">Sin vencimiento</span>'
+                    WHEN fecha_vencimiento < CURRENT_DATE 
+                        THEN '<span class=\"badge bg-danger\">Vencido</span>'
+                    WHEN fecha_vencimiento <= (CURRENT_DATE + INTERVAL '6 months') 
+                        THEN '<span class=\"badge bg-warning text-dark\">Próximo a vencer</span>'
+                    ELSE '<span class=\"badge bg-success\">Vigente</span>'
+                END AS estado_badge
+            FROM producto_lotes
+            WHERE id_producto = $intIdProducto
+              AND estado = 1
+              AND cantidad_disponible > 0
+            ORDER BY fecha_vencimiento ASC NULLS LAST, id_lote ASC";
+
+    return $this->select_all($sql);
+}
+
   
 
 

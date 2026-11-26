@@ -17,7 +17,7 @@ headerAdmin($data);
     width: 100%;
     height: 100%;
 
-    background-image: url('<?= media(); ?>/images/DMLogo.png');
+    background-image: url('<?= media(); ?>images/DMLogo.png');
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 40%;
@@ -42,7 +42,7 @@ headerAdmin($data);
   <div class="row">
     <?php if (!empty($_SESSION['permisos'][1]['r'])) { ?>
       <div class="col-md-6 col-lg-3">
-        <a href="<?= base_url() ?>/usuarios" class="linkw">
+        <a href="<?= base_url() ?>usuarios" class="linkw">
           <div class="widget-small primary coloured-icon"><i class="icon fa fa-users fa-3x"></i>
             <div class="info">
               <h4>Usuarios</h4>
@@ -54,7 +54,7 @@ headerAdmin($data);
     <?php } ?>
     <?php if (!empty($_SESSION['permisos'][4]['r'])) { ?>
       <div class="col-md-6 col-lg-3">
-        <a href="<?= base_url() ?>/clientes" class="linkw">
+        <a href="<?= base_url() ?>clientes" class="linkw">
           <div class="widget-small info coloured-icon"><i class="icon fa fa-user-o fa-3x"></i>
             <div class="info">
               <h4>Clientes</h4>
@@ -66,7 +66,7 @@ headerAdmin($data);
     <?php } ?>
     <?php if (!empty($_SESSION['permisos'][5]['r'])) { ?>
       <div class="col-md-6 col-lg-3">
-        <a href="<?= base_url() ?>/productos" class="linkw">
+        <a href="<?= base_url() ?>productos" class="linkw">
           <div class="widget-small warning coloured-icon"><i class="icon fa fa-archive fa-3x"></i>
             <div class="info">
               <h4>Productos</h4>
@@ -78,7 +78,7 @@ headerAdmin($data);
     <?php } ?>
     <?php if (!empty($_SESSION['permisos'][8]['r'])) { ?>
       <div class="col-md-6 col-lg-3">
-        <a href="<?= base_url() ?>/movimientos" class="linkw">
+        <a href="<?= base_url() ?>movimientos" class="linkw">
           <div class="widget-small danger coloured-icon"><i class="icon fa fa-shopping-cart fa-3x"></i>
             <div class="info">
               <h4>Movimientos pendientes</h4>
@@ -89,60 +89,113 @@ headerAdmin($data);
       </div>
     <?php } ?>
   </div>
-  <!-- Tabla de Movimientos Recientes -->
+
+  <!--Tablas Superiores: Movimientos Recientes y Alertas de Productos -->
   <div class="row">
     <?php if (!empty($_SESSION['permisos'][8]['r'])) { ?>
       <div class="col-md-6">
         <div class="tile">
           <h3 class="tile-title">Movimientos Recientes</h3>
-          <table class="table table-striped table-sm">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Cliente</th>
-                <th>Estado</th>
-                <th>Usuario</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php
-              if (count($data['ultimosMovimientos']) > 0) {
-                foreach ($data['ultimosMovimientos'] as $movimiento) {
-              ?>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Estado</th>
+                  <th>Usuario</th>
+                  <th class="text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                if (count($data['ultimosMovimientos']) > 0) {
+                  foreach ($data['ultimosMovimientos'] as $movimiento) {
+                ?>
+                    <tr>
+                      <td><?= $movimiento['id_movimiento'] ?></td>
+                      <td><?= $movimiento['nombre_razon_social'] ?></td>
+                      <td><?= $movimiento['estado_badge'] ?></td>
+                      <td><?= $movimiento['nombre_completo'] ?></td>
+                      <td class="text-center">
+                        <button type="button"
+                          class="btn btn-info btn-sm btnViewMovimiento"
+                          cl="<?= $movimiento['id_movimiento'] ?>"
+                          title="Ver"><i class="fas fa-eye"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  <?php }
+                } else { ?>
                   <tr>
-                    <td><?= $movimiento['id_movimiento'] ?></td>
-                    <td><?= $movimiento['nombre_razon_social'] ?></td>
-                    <td><?= $movimiento['estado_badge'] ?></td>
-                    <td><?= $movimiento['nombre_completo'] ?></td>
-                    <td class="text-center">
-                      <button type="button" 
-                      class="btn btn-info btn-sm btnViewMovimiento"
-                      cl=<?= $movimiento['id_movimiento'] ?>"
-                      title="Ver"><i class="fas fa-eye"></i>
-                      </button>
-                     </td>
+                    <td colspan="5" class="text-center">No hay movimientos recientes.</td>
                   </tr>
-              <?php }
-              } else{
-              ?>
-              <tr>
-                <td colspan="5" class= "text-center">No hay movimientos recientes.>/td>
-
-              </tr>
-              <?php } ?>
-            </tbody>
-          </table>
+                <?php } ?>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     <?php } ?>
-</div>
-<!-- Área de Gráficos -->
-    <div class="row">
+
+    <?php if (!empty($_SESSION['permisos'][5]['r'])) { ?>
+      <div class="col-md-6">
+        <div class="tile">
+          <h3 class="tile-title">Alertas de Stock y Caducidad</h3>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm" id="tableAlertasProductos">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Proveedor</th>
+                  <th class="text-center">Existencias</th>
+                  <th>Estado</th>
+                  <th class="text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                if (!empty($data['productosAlerta'])) {
+                  foreach ($data['productosAlerta'] as $producto) {
+                ?>
+                    <tr>
+                      <td><?= $producto['id_producto'] ?></td>
+                      <td><?= $producto['codigo'] ?></td>
+                      <td><?= $producto['nombre'] ?></td>
+                      <td><?= $producto['proveedor'] ?></td>
+                      <td class="text-center"><strong><?= $producto['stock'] ?></strong></td>
+                      <td><?= $producto['estado_badge'] ?></td>
+                      <td class="text-center">
+                        <button type="button"
+                          class="btn btn-info btn-sm btnVerLotes"
+                          data-id="<?= $producto['id_producto'] ?>"
+                          title="Ver lotes activos">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  <?php }
+                } else { ?>
+                  <tr>
+                    <td colspan="7" class="text-center">Sin alertas de stock o caducidad.</td>
+                  </tr>
+                <?php } ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    <?php } ?>
+  </div>
+  <!-- Área de Gráficos -->
+  <div class="row">
     <!-- Gráfico 1 (Izquierda) -->
     <div class="col-md-6">
       <div class="tile">
         <div class="conatainer-title">
-            <h3 class="tile-title">Análisis de movimientos por día</h3>
+          <h3 class="tile-title">Análisis de movimientos por día</h3>
         </div>
         <div id="movimientosDia"></div>
       </div>
@@ -151,28 +204,30 @@ headerAdmin($data);
     <div class="col-md-6">
       <div class="tile">
         <div class="conatainer-title">
-           <h3 class="tile-title">Análisis de movimientos por mes</h3>
+          <h3 class="tile-title">Análisis de movimientos por mes</h3>
         </div>
         <div id="movimientosMesAnio"></div>
       </div>
     </div>
   </div>
-  
+
 </main>
-<?php 
+<?php
 getModal('modalMovimientos', $data);
-footerAdmin($data); 
+if (!empty($_SESSION['permisos'][5]['r'])) {
+    getModal('modalLotesProducto', $data);
+}
+footerAdmin($data);
 ?>
 <script src="<?= media(); ?>/js/functions_movimientos.js"></script>
 <script>
- 
   Highcharts.chart('movimientosMesAnio', {
     chart: {
       type: 'pie'
     },
 
     title: {
-      text: 'Movimientos, <?= $data['tipoMovMes']['mes'].'_'.$data['tipoMovMes']['anio'] ?>'
+      text: 'Movimientos, <?= $data['tipoMovMes']['mes'] . '_' . $data['tipoMovMes']['anio'] ?>'
     },
 
     palette: {
@@ -206,11 +261,11 @@ footerAdmin($data);
         }
       ],
       data: [
-       <?php 
+        <?php
         if (!empty($data['tipoMovMes']['datos'])) {
-            foreach ($data['tipoMovMes']['datos'] as $mov) {
-                echo "{ name: '" . $mov['tipo_movimiento'] . "', y: " . intval($mov['total_movimientos']) . " },";
-            }
+          foreach ($data['tipoMovMes']['datos'] as $mov) {
+            echo "{ name: '" . $mov['tipo_movimiento'] . "', y: " . intval($mov['total_movimientos']) . " },";
+          }
         }
         ?>
       ]
@@ -224,11 +279,11 @@ $recibidosDia = [];
 $entregasDia = [];
 
 if (!empty($data['versusMov']['datos'])) {
-    foreach ($data['versusMov']['datos'] as $row) {
-        $fechasDia[]    = $row['fecha_formato'];
-        $recibidosDia[] = intval($row['total_recibidos']);
-        $entregasDia[]  = intval($row['total_entregas']);
-    }
+  foreach ($data['versusMov']['datos'] as $row) {
+    $fechasDia[]    = $row['fecha_formato'];
+    $recibidosDia[] = intval($row['total_recibidos']);
+    $entregasDia[]  = intval($row['total_entregas']);
+  }
 }
 ?>
 <script>
@@ -260,7 +315,7 @@ if (!empty($data['versusMov']['datos'])) {
       categories: <?= json_encode($fechasDia) ?>,
       crosshair: true,
       labels: {
-        formatter: function () {
+        formatter: function() {
           return String(this.value).split('/')[0];
         }
       },

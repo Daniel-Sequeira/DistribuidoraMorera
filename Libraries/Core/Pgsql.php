@@ -2,7 +2,7 @@
 
 class Pgsql extends Conexion
 {
-   private $conexion;
+   protected $conexion;
    private$strquery;
    private $arrValues;
 
@@ -32,19 +32,21 @@ class Pgsql extends Conexion
    public function select(string $query, array $arrValues=[])
    {
       $this->strquery = $query;
+      $this->arrValues = $arrValues;
       $result = $this->conexion->prepare($this->strquery);
-      $result->execute($arrValues);
+      $result->execute($this->arrValues);
       $data= $result->fetch(PDO::FETCH_ASSOC);
       return $data;
       
    }
 
     //Buscar varios registros
-    public function select_all(string $query)
+    public function select_all(string $query, array $arrValues = [])
     {
         $this->strquery = $query;
+        $this->arrValues = $arrValues;
         $result = $this->conexion->prepare($this->strquery);
-        $result->execute();
+       $result->execute($this->arrValues);
         $data = $result->fetchAll(PDO::FETCH_ASSOC);
         return $data;
 
