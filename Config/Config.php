@@ -10,6 +10,7 @@ const DB_NAME = "DistribuidoraMoreraDB";
 const DB_USER = "postgres";
 const DB_PASS = "root"; 
 const DB_CHARSET = "utf8";    
+const PG_BIN_PATH = "C:\\Program Files\\PostgreSQL\\18\\bin";
 
 //Separador decimal, miles, simbolo de moneda
 const SPD = "."; //Decimal

@@ -36,4 +36,9 @@
 
 <!--Cargar funciones -->
 <script src="<?= media();?>js/<?= $data['page_functions_js'] ?>"></script>
+<?php if (!empty($_SESSION['userData']['id_rol']) && intval($_SESSION['userData']['id_rol']) === 1) { 
+    getModal('modalRestaurarBD', $data);
+?>
+    <script src="<?= media(); ?>js/functions_backup.js"></script>
+<?php } ?>
 
