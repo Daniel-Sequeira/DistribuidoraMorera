@@ -6,7 +6,7 @@
 <main class="app-content">
     <div class="app-title">
         <div>
-            <h1><i class="fa fa-exchange"></i> <?= $data['page_title'] ?>
+            <h1><i class="fa fa-exchange"></i> <?=$data['tag_page'] ?>
                 <?php if (!empty($_SESSION['permisosMod']['w'])) { ?>
                     <button class="btn btn-primary" type="button" onclick="openModal();"><i class="fa fa-plus-circle"></i> Nuevo Movimiento</button>
                 <?php } ?>
@@ -14,7 +14,7 @@
         </div>
         <ul class="app-breadcrumb breadcrumb">
             <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>
-            <li class="breadcrumb-item"><a href="<?= base_url(); ?>movimientos"><?= $data['page_tag'] ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= base_url(); ?>movimientos"><?= $data['tag_page'] ?></a></li>
         </ul>
     </div>
 

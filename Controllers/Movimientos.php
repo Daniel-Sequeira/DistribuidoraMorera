@@ -17,8 +17,8 @@ class Movimientos extends Controllers
         if (empty($_SESSION['permisosMod']['r'])) {
             header("Location:" . base_url() . 'dashboard');
         }
-        $data['page_tag'] = "Movimientos de Inventario";
-        $data['page_title'] = "MOVIMIENTOS DE INVENTARIO <small>Entradas y Salidas</small>";
+        $data['tag_page'] = "Movimientos de Inventario";
+        $data['page_title'] = "MOVIMIENTOS DE INVENTARIO";
         $data['page_name'] = "movimientos";
         $data['page_functions_js'] = "functions_movimientos.js";
         $this->views->getView($this, "movimientos", $data);
