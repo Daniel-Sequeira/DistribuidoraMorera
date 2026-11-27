@@ -54,55 +54,58 @@ public function loginUser()
    }
 
    public function resetPass(){
-   if($_POST){
-      if(empty($_POST['txtEmailReset'])){
-            $arrResponse = ["status" => false, "msg" => 'Error de datos'];
-         }else{
+  if ($_POST) {
+        if (empty($_POST['txtEmailReset'])) {
+            $arrResponse = array('status' => false, 'msg' => 'Error de datos');
+        } else {
             $strEmail = strtolower(strClean($_POST['txtEmailReset']));
             $arrData = $this->model->getUserEmail($strEmail);
-            
-            if(empty($arrData)){
-               $arrResponse = ["status" => false, "msg" => 'Usuario no encontrado.'];
-            }else{
-               $idusuario = $arrData['id_usuario'];
-               $nombreUsuario = $arrData['nombre_completo'];
-               // Token de 64 caracteres hexadecimales
-               $token = bin2hex(random_bytes(32));
-               $$url_recovery = base_url() . 'login/confirmUser/' . $strEmail . ',' . $token;
-               $requestUpdate = $this->model->setTokenUser($idusuario, $token); 
 
-               $dataUsuario = [
-                        'nombreUsuario' => $nombreUsuario,
-                        'email'         => $strEmail,
+            if (empty($arrData)) {
+                $arrResponse = array('status' => false, 'msg' => 'El usuario no existe.');
+            } else {
+                // 1. Generar el token (o tomar el existente) y actualizar la BD
+                $token = token(); // O la función que genere tokens en tu sistema (ej: bin2hex(random_bytes(32)))
+                $requestPass = $this->model->setTokenUser($arrData['id_usuario'], $token);
+
+                if ($requestPass) {
+                    // 2. DEFINIR LA VARIABLE $url_recovery (Esto resuelve la advertencia)
+                    $url_recovery = BASE_URL . 'login/confirmUser/' . $strEmail . '/' . $token;
+
+                    // 3. Preparar el arreglo de datos para la plantilla del correo
+                    $dataEmail = array(
                         'asunto'        => 'Recuperar cuenta - ' . NOMBRE_REMITENTE,
+                        'email'         => $strEmail,
+                        'nombreUsuario' => $arrData['nombre_completo'],
                         'url_recovery'  => $url_recovery
-                    ];
+                    );
 
-               if($requestUpdate){
-                   $sendEmail = sendEmail($dataUsuario,'email_cambioPassword'); 
-                   if($sendEmail){
-                 $arrResponse = [
-                                'status' => true,
-                                'msg'    => 'Se ha enviado un correo a tu cuenta de correo electrónico para cambiar tu contraseña.'
-                            ];
-                        } else {
-                            $arrResponse = [
-                                'status' => false,
-                                'msg'    => 'No es posible enviar el correo, intenta más tarde.'
-                            ];
-                        }
+                    // 4. Enviar el correo usando tu helper
+                    $sendMail = sendEmail($dataEmail, 'email_cambioPassword');
+
+                    if ($sendMail) {
+                        $arrResponse = array(
+                            'status' => true,
+                            'msg'    => 'Se ha enviado un correo a tu cuenta de correo electrónico para cambiar tu contraseña.'
+                        );
                     } else {
-                        $arrResponse = [
+                        $arrResponse = array(
                             'status' => false,
-                            'msg'    => 'No es posible realizar el proceso, intenta más tarde.'
-                        ];
+                            'msg'    => 'No fue posible enviar el correo, intenta más tarde.'
+                        );
                     }
+                } else {
+                    $arrResponse = array(
+                        'status' => false,
+                        'msg'    => 'No fue posible realizar la solicitud, intenta más tarde.'
+                    );
                 }
             }
-         echo json_encode($arrResponse,JSON_UNESCAPED_UNICODE);
-         }   
-      die();
+        }
+        echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
     }
+    die();
+}
      
  public function confirmUser(string $params)
     {

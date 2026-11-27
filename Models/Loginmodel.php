@@ -68,10 +68,15 @@ class LoginModel extends Pgsql
     }
 
     public function getUserEmail(string $strEmail){
-        $this->strUsuario = $strEmail;
-        $sql = "SELECT id_usuario, nombre_completo, correo, estado FROM usuarios WHERE 
-        correo = '$this->strUsuario' AND estado != '0'";
-        return $this->select($sql, [$this->strUsuario]);
+       $this->strUsuario = $strEmail;
+    
+    $sql = "SELECT id_usuario, nombre_completo, correo, estado 
+            FROM usuarios 
+            WHERE correo = ? AND estado != '0'";
+            
+    $arrData = array($this->strUsuario);
+    $request = $this->select($sql, $arrData);
+    return $request;
     }
 
     public function setTokenUser(int $idusuario, string $token){

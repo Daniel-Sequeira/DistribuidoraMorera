@@ -1,4 +1,12 @@
 <?php 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+// Cargar el autoloader de Composer desde la carpeta Libraries
+// Ajusta la ruta si Helpers está en una subcarpeta (ej: ../Libraries/vendor/autoload.php)
+require_once dirname(__DIR__) . "/Libraries/vendor/autoload.php";
+
 //URL base del proyecto
 function base_url()
 {
@@ -38,23 +46,54 @@ function getModal(string $nameModal, $data)
     require_once $view_modal;
 }
 
-//Envio de correos
-    function sendEmail($data,$template)
-    {
-        $asunto = $data['asunto'];
-        $emailDestino = $data['email'];
-        $empresa = NOMBRE_REMITENTE;
-        $remitente = EMAIL_REMITENTE;
-        //ENVIO DE CORREO
-        $de = "MIME-Version: 1.0\r\n";
-        $de .= "Content-type: text/html; charset=UTF-8\r\n";
-        $de .= "From: {$empresa} <{$remitente}>\r\n";
-        ob_start();
-        require_once("Views/Template/Email/".$template.".php");
-        $mensaje = ob_get_clean();
-        $send = mail($emailDestino, $asunto, $mensaje, $de);
-        return $send;
+// Envío de correos adaptado a PHPMailer con Gmail
+function sendEmail($data, $template)
+{
+    $asunto       = $data['asunto'];
+    $emailDestino = $data['email'];
+    $nombreCliente = isset($data['nombreUsuario']) ? $data['nombreUsuario'] : $emailDestino;
+
+    // Cargar y renderizar la plantilla HTML guardando el contenido en $mensaje
+    ob_start();
+    require_once("Views/Template/Email/" . $template . ".php");
+    $mensaje = ob_get_clean();
+
+    // Crear la instancia de PHPMailer
+    $mail = new PHPMailer(true);
+
+    try {
+        // --- Configuración del Servidor SMTP (Gmail) ---
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        
+        // Tus credenciales de Gmail
+        $mail->Username   = EMAIL_REMITENTE;      
+        $mail->Password   = 'huzm noho zixv ucwr'; //app pass  
+        // Cifrado y Puerto
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
+        $mail->Port       = 587;                     
+        $mail->CharSet    = 'UTF-8';
+
+        // --- Remitente y Destinatario ---
+        $mail->setFrom(EMAIL_REMITENTE, NOMBRE_REMITENTE);
+        $mail->addAddress($emailDestino, $nombreCliente);
+
+        // --- Contenido del correo ---
+        $mail->isHTML(true);
+        $mail->Subject = $asunto;
+        $mail->Body    = $mensaje;
+        $mail->AltBody = strip_tags($mensaje); // Versión de texto plano sin HTML
+
+        // Enviar el correo
+        return $mail->send(); // Devuelve true si se envió correctamente
+
+    } catch (Exception $e) {
+        // En caso de error, puedes imprimirlo para depurar en WAMP:
+        // echo "Error al enviar: {$mail->ErrorInfo}";
+        return false;
     }
+}
      //obtener permisos de acciones CRUD
     function getPermisos(int $idmodulo){
         require_once("Models/PermisosModel.php");

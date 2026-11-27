@@ -1,3 +1,6 @@
+<?php
+/** @var array $data */
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -84,24 +87,24 @@
 			<tr>
 				<td>
 					<div class="x_sgwrap x_title_blue">
-						<h1><?= NOMBRE_EMPRESA ?></h1>
+						<h1><?= defined('NOMBRE_EMPRESA') ? NOMBRE_EMPRESA : 'Mi Empresa'; ?></h1>
 					</div>
 				</td>
 			</tr>
 			<tr>
 				<td>
 					<div class="x_sgwrap">
-						<p>Hola <?= $data['nombreUsuario']; ?></p>
+						<p>Hola <?= htmlspecialchars($data['nombreUsuario']); ?></p>
 					</div>
-					<p>Solicitud de acceso para el usuario: <strong><?= $data['email']; ?></strong></p>
-					<p>Has solicitado los datos de tu usuario, accede al enlace de abajo para confirmar tu contraseña. </p>
+					<p>Solicitud de acceso para el usuario: <strong><?= htmlspecialchars($data['email']); ?></strong></p>
+					<p>Has solicitado los datos de tu usuario, accede al enlace de abajo para confirmar tu contraseña.</p>
 					<p class="x_text_white">
-					<a href="<?= $data['url_recovery']; ?>" target="_blank" class="x_button_link x_link_blue">Confirmar datos</a>
+					<a href="<?= htmlspecialchars($data['url_recovery']); ?>" target="_blank" class="x_button_link x_link_blue">Confirmar datos</a>
 					</p>
 					<br>
 					<p>Si no te funciona el botón puedes copiar y pegar la siguiente dirección en tu navegador.</p>
-					<span><?= $data['url_recovery']; ?></span>
-					<p class="x_title_gray"><a href="<?= WEB_EMPRESA; ?>" target="_blanck"><?= WEB_EMPRESA; ?></a></p>
+					<span><?= htmlspecialchars($data['url_recovery']); ?></span>
+					<p class="x_title_gray"><a href="<?= defined('WEB_EMPRESA') ? WEB_EMPRESA : '#'; ?>" target="_blank"><?= defined('WEB_EMPRESA') ? WEB_EMPRESA : ''; ?></a></p>
 				</td>
 			</tr>
 		</tbody>
