@@ -134,6 +134,142 @@ class MovimientosModel extends Pgsql
         }
     }
 
+    // Registrar ENTRADA creando un nuevo lote
+public function insertMovimientoNuevoLote(
+    int $idProducto,
+    string $codigoLote,
+    int $cantidad,
+    float $costoUnitario,
+    string $motivo,
+    int $idUsuario,
+    ?string $fechaVencimiento = null
+) {
+    $codigoLote = trim($codigoLote);
+
+    if ($codigoLote === '' || $cantidad <= 0 || $costoUnitario < 0) {
+        return 0;
+    }
+
+    try {
+        $this->beginTransaction();
+
+        //Consultar producto y precio de venta
+        $sqlProducto = "SELECT precio
+                        FROM productos
+                        WHERE id_producto = ?
+                        AND estado::text IN ('1', 'true', 't')
+                        FOR UPDATE";
+
+        $producto = $this->select(
+            $sqlProducto,
+            [$idProducto]
+        );
+
+        if (empty($producto)) {
+            $this->rollBack();
+            return "producto_invalido";
+        }
+
+        // Verificar que el código de lote no exista
+        $sqlCheck = "SELECT id_lote
+                     FROM producto_lotes
+                     WHERE id_producto = ?
+                     AND codigo_lote = ?";
+
+        $loteExistente = $this->select(
+            $sqlCheck,
+            [$idProducto, $codigoLote]
+        );
+
+        if (!empty($loteExistente)) {
+            $this->rollBack();
+            return "lote_existe";
+        }
+
+        //Registrar nuevo lote
+        $sqlLote = "INSERT INTO producto_lotes (
+                        id_producto,
+                        codigo_lote,
+                        cantidad_inicial,
+                        cantidad_disponible,
+                        cantidad_reservada,
+                        costo_unitario,
+                        precio_venta_sugerido,
+                        fecha_ingreso,
+                        fecha_vencimiento,
+                        estado
+                    )
+                    VALUES (?, ?, ?, ?, 0, ?, ?,
+                            CURRENT_TIMESTAMP, ?, 1)
+                    RETURNING id_lote";
+
+        $arrLote = [
+            $idProducto,
+            $codigoLote,
+            $cantidad,
+            $cantidad,
+            $costoUnitario,
+            $producto['precio'],
+            $fechaVencimiento
+        ];
+
+        $idLote = $this->insert($sqlLote, $arrLote);
+
+        if ($idLote <= 0) {
+            $this->rollBack();
+            return 0;
+        }
+
+        //Registrar movimiento de ENTRADA
+        $sqlMovimiento = "INSERT INTO movimientos_inventario (
+                            id_producto,
+                            id_lote,
+                            tipo_movimiento,
+                            cantidad,
+                            costo_unitario,
+                            precio_unitario,
+                            motivo,
+                            id_usuario,
+                            id_cliente,
+                            estado
+                        )
+                        VALUES (?, ?, 'ENTRADA', ?, ?,
+                                0.00, ?, ?, NULL, 0)
+                        RETURNING id_movimiento";
+
+        $arrMovimiento = [
+            $idProducto,
+            $idLote,
+            $cantidad,
+            $costoUnitario,
+            $motivo,
+            $idUsuario
+        ];
+
+        $idMovimiento = $this->insert(
+            $sqlMovimiento,
+            $arrMovimiento
+        );
+
+        if ($idMovimiento <= 0) {
+            $this->rollBack();
+            return 0;
+        }
+
+        //Confirmar transacción
+        $this->commit();
+
+        return $idMovimiento;
+
+    } catch (Throwable $e) {
+        $this->rollBack();
+
+        error_log($e->getMessage());
+
+        return 0;
+    }
+}
+
     
      //Agregar artículo a lista de Ventas (Estado 1: Recibido por ventas) y CONGELAR cantidad
      
@@ -491,23 +627,27 @@ class MovimientosModel extends Pgsql
         return $this->select_all($sql);
     }
 
-    public function selectLotesPorProducto(int $idProducto)
-    {
-        $this->intIdProducto = $idProducto;
-        $sql = "SELECT 
-                    id_lote, 
-                    codigo_lote, 
-                    cantidad_disponible,
-                    cantidad_reservada,
-                    (cantidad_disponible - cantidad_reservada) AS stock_libre,
-                    costo_unitario,
-                    precio_venta_sugerido,
-                    TO_CHAR(fecha_ingreso, 'DD/MM/YYYY') AS fecha_ingreso
-                FROM producto_lotes 
-                WHERE id_producto = $this->intIdProducto AND estado = 1 
-                ORDER BY fecha_ingreso ASC";
-        return $this->select_all($sql);
-    }
+   public function selectLotesPorProducto(int $idProducto)
+{
+    $this->intIdProducto = $idProducto;
+
+    $sql = "SELECT
+                id_lote,
+                codigo_lote,
+                cantidad_disponible,
+                cantidad_reservada,
+                (cantidad_disponible - cantidad_reservada) AS stock_libre,
+                costo_unitario,
+                precio_venta_sugerido,
+                TO_CHAR(fecha_ingreso, 'DD/MM/YYYY') AS fecha_ingreso
+            FROM producto_lotes
+            WHERE id_producto = $this->intIdProducto
+                AND estado = 1
+                AND cantidad_disponible > 0
+            ORDER BY fecha_ingreso ASC, id_lote ASC";
+
+    return $this->select_all($sql);
+}
 
     public function selectClientesActivos()
     {

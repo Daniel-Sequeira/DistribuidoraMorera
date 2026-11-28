@@ -145,8 +145,8 @@ class Productos extends Controllers
                                     'msg'    => 'No fue posible almacenar los datos.'
                                 ];
                             }
-                        } // <-- Faltaba esta llave de cierre
-                    } else { // <-- Y faltaba este "} else {" para separar crear de actualizar
+                        } 
+                    } else { 
                         // ACTUALIZAR DATOS DEL CATÁLOGO Y PRECIO VIGENTE (sin tocar lotes ni stock)
                         if (empty($_SESSION['permisosMod']['u'])) {
                             die();

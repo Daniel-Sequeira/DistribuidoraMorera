@@ -9,7 +9,7 @@ class Movimientos extends Controllers
             header('Location: ' . base_url() . 'login');
             die();
         }
-        getPermisos(8); 
+        getPermisos(8);
     }
 
     public function Movimientos()
@@ -24,8 +24,8 @@ class Movimientos extends Controllers
         $this->views->getView($this, "movimientos", $data);
     }
 
-    
-     // renderizar los badges de estado
+
+    // renderizar los badges de estado
     private function getBadgeEstado(int $estado): string
     {
         $badges = [
@@ -42,13 +42,13 @@ class Movimientos extends Controllers
         return $badges[$estado] ?? '<span class="badge bg-light text-dark">Desconocido</span>';
     }
 
-    
+
     //Obtener movimientos con estado y botones dinámicos según etapa del flujo
     public function getMovimientos()
     {
         header('Content-Type: application/json; charset=utf-8');
         if ($_SESSION['permisosMod']['r']) {
-            $arrData =$this->model->selectMovimientos();
+            $arrData = $this->model->selectMovimientos();
 
             for ($i = 0; $i < count($arrData); $i++) {
                 $idMov  = $arrData[$i]['id_movimiento'];
@@ -84,7 +84,7 @@ class Movimientos extends Controllers
                         $botones .= '<button class="btn btn-danger btn-sm btnDevolucion" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Registrar Devolución"><i class="fas fa-undo"></i></button> ';
                     }
                 }
-                // Botón para confirmar estado DEVUELTO (reintegra stock) en ENTRADA pendiente de devolución
+                // Botón para confirmar estado DEVUELTO en ENTRADA pendiente de devolución
                 if ($tipo === 'ENTRADA' && $estado === 7 && !empty($_SESSION['permisosMod']['u'])) {
                     $botones .= '<button class="btn btn-success btn-sm btnConfirmarDevuelto" cl="' . $idMov . '" cant="' . $arrData[$i]['cantidad'] . '" title="Pasar a Devuelto "><i class="fa fa-check-square-o"></i></button> ';
                 }
@@ -105,9 +105,9 @@ class Movimientos extends Controllers
         die();
     }
 
-    
-     //Obtener un movimiento para el modal Ver
-     
+
+    //Obtener un movimiento para el modal Ver
+
     public function getMovimiento($id_movimiento)
     {
         if ($_SESSION['permisosMod']['r']) {
@@ -133,41 +133,177 @@ class Movimientos extends Controllers
         die();
     }
 
-    
+
     //Registrar nueva ENTRADA (Estado 0) o agregar ítem a SALIDA en Ventas (Estado 1 - Congelado)
+
+
+    
+public function setMovimiento()
+{
+    if ($_POST) {
+
+        // Validar permiso de escritura
+        if (empty($_SESSION['permisosMod']['w'])) {
+            echo json_encode([
+                'status' => false,
+                'msg' => 'No tienes permisos para registrar movimientos.'
+            ], JSON_UNESCAPED_UNICODE);
+            die();
+        }
+
+        // Datos del movimiento
+        $strTipoMovimiento = strtoupper(strClean($_POST['listTipoMovimiento'] ?? ''));
+        $intIdProducto     = intval($_POST['listProducto'] ?? 0);
+
+        //Identificar lote existente o nuevo
+        $strLote           = $_POST['listLote'] ?? '';
+        $intIdLote         = intval($strLote);
+        $esNuevoLote       = ($strLote === 'NUEVO');
+
+        // Datos del nuevo lote
+        $strCodigoLote = trim(strClean($_POST['txtCodigoLote'] ?? ''));
+
+        $strFechaVencimiento = !empty($_POST['txtFechaVencimiento'])
+            ? $_POST['txtFechaVencimiento']
+            : null;
+
+        $intCantidad       = intval($_POST['txtCantidad'] ?? 0);
+        $decCostoUnitario  = floatval($_POST['txtCostoUnitario'] ?? 0);
+        $decPrecioUnitario = floatval($_POST['txtPrecioUnitario'] ?? 0);
+        $strMotivo         = strClean($_POST['txtMotivo'] ?? '');
+        $intIdCliente      = !empty($_POST['listCliente'])
+            ? intval($_POST['listCliente'])
+            : null;
+
+        $intIdUsuario = intval($_SESSION['idUser']);
+
+        // Obtener ID del perfil
+        $intIdRol = intval($_SESSION['userData']['id_rol'] ?? 0);
+
+        // Validar tipo de movimiento
+        if (!in_array($strTipoMovimiento, ['ENTRADA', 'SALIDA'])) {
+
+            echo json_encode([
+                'status' => false,
+                'msg' => 'Tipo de movimiento inválido.'
+            ], JSON_UNESCAPED_UNICODE);
+
+            die();
+        }
+
+        // Restricciones de perfiles
+        // Ventas (2): únicamente SALIDAS
+        // Bodegas (3): únicamente ENTRADAS
+        if ($intIdRol <= 0 ||
+            ($intIdRol === 2 && $strTipoMovimiento === 'ENTRADA') ||
+            ($intIdRol === 3 && $strTipoMovimiento === 'SALIDA')) {
+
+            echo json_encode([
+                'status' => false,
+                'msg' => 'No tienes permisos para registrar este tipo de movimiento.'
+            ], JSON_UNESCAPED_UNICODE);
+
+            die();
+        }
+
+        // Validar producto y lote
+        if ($intIdProducto <= 0 ||
+            (!$esNuevoLote && $intIdLote <= 0)) {
+
+            echo json_encode([
+                'status' => false,
+                'msg' => 'Debe seleccionar un producto y un lote válido.'
+            ], JSON_UNESCAPED_UNICODE);
+
+            die();
+        }
+
+        // crear lotes solo en ENTRADA
+        if ($esNuevoLote && $strTipoMovimiento !== 'ENTRADA') {
+
+            echo json_encode([
+                'status' => false,
+                'msg' => 'Solo se pueden crear lotes en movimientos de entrada.'
+            ], JSON_UNESCAPED_UNICODE);
+
+            die();
+        }
+
+        //Validar código de lote
+        if ($esNuevoLote && $strCodigoLote === '') {
+
+            echo json_encode([
+                'status' => false,
+                'msg' => 'Debe ingresar el código del nuevo lote.'
+            ], JSON_UNESCAPED_UNICODE);
+
+            die();
+        }
+
+        // Validar fecha de vencimiento
+        if ($esNuevoLote && $strFechaVencimiento !== null) {
+
+            $fecha = DateTime::createFromFormat(
+                '!Y-m-d',
+                $strFechaVencimiento
+            );
+
+            if (!$fecha ||
+                $fecha->format('Y-m-d') !== $strFechaVencimiento) {
+
+                echo json_encode([
+                    'status' => false,
+                    'msg' => 'Fecha de vencimiento inválida.'
+                ], JSON_UNESCAPED_UNICODE);
+
+                die();
+            }
+        }
+
+        // Validar cantidad
+        if ($intCantidad <= 0) {
+
+            echo json_encode([
+                'status' => false,
+                'msg' => 'La cantidad debe ser mayor a 0.'
+            ], JSON_UNESCAPED_UNICODE);
+
+            die();
+        }
+
+        // Validar costo en entradas
+        if ($strTipoMovimiento === 'ENTRADA' &&
+            $decCostoUnitario < 0) {
+
+            echo json_encode([
+                'status' => false,
+                'msg' => 'El costo unitario no puede ser negativo.'
+            ], JSON_UNESCAPED_UNICODE);
+
+            die();
+        }
+
      
-    public function setMovimiento()
-    {
-        if ($_POST) {
-            if (empty($_SESSION['permisosMod']['w'])) {
-                echo json_encode(['status' => false, 'msg' => 'No tienes permisos para registrar movimientos.'], JSON_UNESCAPED_UNICODE);
-                die();
-            }
+        // Registrar entrada
+    
+        if ($strTipoMovimiento === 'ENTRADA') {
 
-            $strTipoMovimiento = strtoupper(strClean($_POST['listTipoMovimiento'] ?? ''));
-            $intIdProducto     = intval($_POST['listProducto'] ?? 0);
-            $intIdLote         = intval($_POST['listLote'] ?? 0);
-            $intCantidad       = intval($_POST['txtCantidad'] ?? 0);
-            $decCostoUnitario  = floatval($_POST['txtCostoUnitario'] ?? 0);
-            $decPrecioUnitario = floatval($_POST['txtPrecioUnitario'] ?? 0);
-            $strMotivo         = strClean($_POST['txtMotivo'] ?? '');
-            $intIdCliente      = !empty($_POST['listCliente']) ? intval($_POST['listCliente']) : null;
-            $intIdUsuario      = intval($_SESSION['idUser']);
+            if ($esNuevoLote) {
 
-            if (!in_array($strTipoMovimiento, ['ENTRADA', 'SALIDA'])) {
-                echo json_encode(['status' => false, 'msg' => 'Tipo de movimiento inválido.'], JSON_UNESCAPED_UNICODE);
-                die();
-            }
-            if ($intIdProducto <= 0 || $intIdLote <= 0) {
-                echo json_encode(['status' => false, 'msg' => 'Debe seleccionar un producto y un lote válido.'], JSON_UNESCAPED_UNICODE);
-                die();
-            }
-            if ($intCantidad <= 0) {
-                echo json_encode(['status' => false, 'msg' => 'La cantidad debe ser mayor a 0.'], JSON_UNESCAPED_UNICODE);
-                die();
-            }
+                // NUEVO: Crear lote y registrar entrada
+                $request = $this->model->insertMovimientoNuevoLote(
+                    $intIdProducto,
+                    $strCodigoLote,
+                    $intCantidad,
+                    $decCostoUnitario,
+                    $strMotivo,
+                    $intIdUsuario,
+                    $strFechaVencimiento
+                );
 
-            if ($strTipoMovimiento === 'ENTRADA') {
+            } else {
+
+                // Registrar entrada en lote existente
                 $request = $this->model->insertMovimientoEntrada(
                     $intIdProducto,
                     $intIdLote,
@@ -176,49 +312,111 @@ class Movimientos extends Controllers
                     $strMotivo,
                     $intIdUsuario
                 );
-
-                if ($request === "lote_invalido") {
-                    $arrResponse = ['status' => false, 'msg' => 'El lote seleccionado no pertenece al producto.'];
-                } elseif ($request > 0) {
-                    $arrResponse = ['status' => true, 'tipo' => 'ENTRADA', 'msg' => 'Entrada de inventario registrada correctamente.'];
-                } else {
-                    $arrResponse = ['status' => false, 'msg' => 'No es posible almacenar la entrada.'];
-                }
-            } else {
-                if (empty($intIdCliente)) {
-                    echo json_encode(['status' => false, 'msg' => 'Para una SALIDA es obligatorio seleccionar un cliente.'], JSON_UNESCAPED_UNICODE);
-                    die();
-                }
-
-                $request = $this->model->insertItemSalidaVentas(
-                    $intIdProducto,
-                    $intIdLote,
-                    $intCantidad,
-                    $decPrecioUnitario,
-                    $strMotivo,
-                    $intIdUsuario,
-                    $intIdCliente
-                );
-
-                if ($request === "stock_insuficiente") {
-                    $arrResponse = ['status' => false, 'msg' => 'Stock disponible insuficiente (considere las unidades ya congeladas).'];
-                } elseif ($request === "lote_invalido") {
-                    $arrResponse = ['status' => false, 'msg' => 'El lote seleccionado no pertenece al producto o está inactivo.'];
-                } elseif ($request > 0) {
-                    $arrResponse = ['status' => true, 'tipo' => 'SALIDA', 'msg' => 'Artículo agregado a la lista y cantidad congelada.'];
-                } else {
-                    $arrResponse = ['status' => false, 'msg' => 'No es posible agregar el artículo a la lista.'];
-                }
             }
 
-            echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+            // Respuestas de ENTRADA
+            if ($request === "lote_existe") {
+
+                $arrResponse = [
+                    'status' => false,
+                    'msg' => 'El código del lote ya existe para este producto.'
+                ];
+
+            } elseif ($request === "producto_invalido") {
+
+                $arrResponse = [
+                    'status' => false,
+                    'msg' => 'El producto no existe o está inactivo.'
+                ];
+
+            } elseif ($request === "lote_invalido") {
+
+                $arrResponse = [
+                    'status' => false,
+                    'msg' => 'El lote seleccionado no es válido.'
+                ];
+
+            } elseif (is_numeric($request) && $request > 0) {
+
+                $arrResponse = [
+                    'status' => true,
+                    'tipo' => 'ENTRADA',
+                    'msg' => $esNuevoLote
+                        ? 'Nuevo lote y entrada registrados correctamente.'
+                        : 'Entrada de inventario registrada correctamente.'
+                ];
+
+            } else {
+
+                $arrResponse = [
+                    'status' => false,
+                    'msg' => 'No es posible almacenar la entrada.'
+                ];
+            }
+       
+        // Mov salidas
+       
+        } else {
+
+            if (empty($intIdCliente)) {
+
+                echo json_encode([
+                    'status' => false,
+                    'msg' => 'Para una SALIDA es obligatorio seleccionar un cliente.'
+                ], JSON_UNESCAPED_UNICODE);
+
+                die();
+            }
+
+            $request = $this->model->insertItemSalidaVentas(
+                $intIdProducto,
+                $intIdLote,
+                $intCantidad,
+                $decPrecioUnitario,
+                $strMotivo,
+                $intIdUsuario,
+                $intIdCliente
+            );
+
+            if ($request === "stock_insuficiente") {
+
+                $arrResponse = [
+                    'status' => false,
+                    'msg' => 'Stock disponible insuficiente (considere las unidades ya congeladas).'
+                ];
+
+            } elseif ($request === "lote_invalido") {
+
+                $arrResponse = [
+                    'status' => false,
+                    'msg' => 'El lote seleccionado no pertenece al producto o está inactivo.'
+                ];
+
+            } elseif (is_numeric($request) && $request > 0) {
+
+                $arrResponse = [
+                    'status' => true,
+                    'tipo' => 'SALIDA',
+                    'msg' => 'Artículo agregado a la lista y cantidad congelada.'
+                ];
+
+            } else {
+
+                $arrResponse = [
+                    'status' => false,
+                    'msg' => 'No es posible agregar el artículo a la lista.'
+                ];
+            }
         }
-        die();
+
+        echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
     }
 
-    
+    die();
+}
+
     //Obtener artículos en estado 1 (Recibido por ventas) de un cliente
-    
+
     public function getListaVentas($id_cliente)
     {
         if ($_SESSION['permisosMod']['r']) {
@@ -229,8 +427,8 @@ class Movimientos extends Controllers
         die();
     }
 
-    
-     //Editar cantidad de un ítem en estado 1
+
+    //Editar cantidad de un ítem en estado 1
     public function editItemVentas()
     {
         if ($_POST) {
@@ -242,7 +440,7 @@ class Movimientos extends Controllers
             $intIdMov    = intval($_POST['id_movimiento'] ?? 0);
             $intCantidad = intval($_POST['cantidad'] ?? 0);
 
-            $res =$this->model->updateCantidadSalidaVentas($intIdMov,$intCantidad);
+            $res = $this->model->updateCantidadSalidaVentas($intIdMov, $intCantidad);
 
             if ($res === "ok") {
                 $arrResponse = ['status' => true, 'msg' => 'Cantidad actualizada y reserva ajustada.'];
@@ -253,13 +451,13 @@ class Movimientos extends Controllers
             } else {
                 $arrResponse = ['status' => false, 'msg' => 'El ítem ya fue procesado o no se pudo actualizar.'];
             }
-              echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
-     }
+            echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+        }
         die();
     }
-    
-     //Llenar selects iniciales del modal (Productos y Clientes activos)
-     
+
+    //Llenar selects iniciales del modal (Productos y Clientes activos)
+
     public function getSelectsIniciales()
     {
         if ($_SESSION['permisosMod']['r']) {
@@ -275,8 +473,8 @@ class Movimientos extends Controllers
         die();
     }
 
-    
-     //Obtener lotes disponibles de un producto seleccionado
+
+    //Obtener lotes disponibles de un producto seleccionado
     public function getLotesProducto($id_producto)
     {
         if ($_SESSION['permisosMod']['r']) {
@@ -287,7 +485,7 @@ class Movimientos extends Controllers
         die();
     }
 
-   
+
     //Quitar ítem de la lista de ventas (Estado 1)
     public function delItemVentas()
     {
@@ -308,7 +506,7 @@ class Movimientos extends Controllers
         die();
     }
 
-    
+
     //Procesar pedido de ventas (Estado 1 -> Estado 2)
     public function procesarVentas()
     {
@@ -329,9 +527,9 @@ class Movimientos extends Controllers
         die();
     }
 
-    
-     //Avanzar estado de bodega 2 -> 3 Enviado  3 -> 4 Entregado 7 -> 8 Devuelto sin sumar al stock 
-    
+
+    //Avanzar estado de bodega 2 -> 3 Enviado  3 -> 4 Entregado 7 -> 8 Devuelto sin sumar al stock 
+
     public function cambiarEstado()
     {
         if ($_POST) {
@@ -361,8 +559,8 @@ class Movimientos extends Controllers
         die();
     }
 
-   
-     //Registrar devolución parcial o total (Estados 5 y 6)
+
+    //Registrar devolución parcial o total (Estados 5 y 6)
     public function setDevolucion()
     {
         if ($_POST) {
@@ -419,6 +617,4 @@ class Movimientos extends Controllers
         }
         die();
     }
-
- } 
- ?>    
+}

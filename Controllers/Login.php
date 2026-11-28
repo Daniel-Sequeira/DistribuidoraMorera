@@ -64,15 +64,15 @@ public function loginUser()
             if (empty($arrData)) {
                 $arrResponse = array('status' => false, 'msg' => 'El usuario no existe.');
             } else {
-                // 1. Generar el token (o tomar el existente) y actualizar la BD
+                // Generar el token (o tomar el existente) y actualizar la BD
                 $token = token(); // O la función que genere tokens en tu sistema (ej: bin2hex(random_bytes(32)))
                 $requestPass = $this->model->setTokenUser($arrData['id_usuario'], $token);
 
                 if ($requestPass) {
-                    // 2. DEFINIR LA VARIABLE $url_recovery (Esto resuelve la advertencia)
+                    //DEFINIR LA VARIABLE $url_recovery
                     $url_recovery = BASE_URL . 'login/confirmUser/' . $strEmail . '/' . $token;
 
-                    // 3. Preparar el arreglo de datos para la plantilla del correo
+                    //Preparar el arreglo de datos para la plantilla del correo
                     $dataEmail = array(
                         'asunto'        => 'Recuperar cuenta - ' . NOMBRE_REMITENTE,
                         'email'         => $strEmail,
@@ -80,7 +80,7 @@ public function loginUser()
                         'url_recovery'  => $url_recovery
                     );
 
-                    // 4. Enviar el correo usando tu helper
+                    // Enviar el correo usando tu helper
                     $sendMail = sendEmail($dataEmail, 'email_cambioPassword');
 
                     if ($sendMail) {
@@ -155,7 +155,7 @@ public function loginUser()
                 if (empty($arrResponseUser)) {
                     $arrResponse = ["status" => false, "msg" => 'El enlace ha expirado o no es válido.'];
                 } else {
-                    // Encriptación moderna con Bcrypt/Argon2
+                    // Encriptación con Bcrypt/Argon2
                     $strPasswordHash = password_hash($strPassword, PASSWORD_DEFAULT);
                     $requestPass = $this->model->insertPassword($intIdUsuario, $strPasswordHash);
 

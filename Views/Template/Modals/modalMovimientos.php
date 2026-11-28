@@ -1,3 +1,7 @@
+<?php
+$intIdRol = intval($_SESSION['userData']['id_rol'] ?? 0);
+?>
+
 <!-- MODAL 1: REGISTRAR ENTRADA / GESTIONAR LISTA DE SALIDA (VENTAS - ESTADO 1) -->
 <div class="modal fade" id="modalFormMovimientos" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -9,16 +13,26 @@
             <div class="modal-body">
                 <form id="formMovimiento" name="formMovimiento" class="form-horizontal">
                     <p class="text-primary mb-3">
-                        Los campos con asterisco (<span class="required">*</span>) son obligatorios. 
+                        Los campos con asterisco (<span class="required">*</span>) son obligatorios.
                         En movimientos de <strong>SALIDA</strong>, los artículos se reservan en estado <em>Recibido por ventas</em> hasta que pulse <strong>Procesar Pedido</strong>.
                     </p>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="listTipoMovimiento" class="form-label">Tipo de Movimiento <span class="required">*</span></label>
+                            <label for="listTipoMovimiento" class="form-label">
+                                Tipo de Movimiento <span class="required">*</span>
+                            </label>
+
                             <select class="form-select" id="listTipoMovimiento" name="listTipoMovimiento" required>
-                                <option value="ENTRADA">ENTRADA (Ingreso a inventario)</option>
-                                <option value="SALIDA">SALIDA (Despacho / Venta a cliente)</option>
+
+                                <?php if ($intIdRol > 0 && $intIdRol !== 2) { ?>
+                                    <option value="ENTRADA">ENTRADA (Ingreso a inventario)</option>
+                                <?php } ?>
+
+                                <?php if ($intIdRol > 0 && $intIdRol !== 3) { ?>
+                                    <option value="SALIDA">SALIDA (Despacho / Venta a cliente)</option>
+                                <?php } ?>
+
                             </select>
                         </div>
 
@@ -31,25 +45,89 @@
                     </div>
 
                     <div class="row">
+
+                        <!-- SELECTOR DE PRODUCTOS -->
                         <div class="col-md-5 mb-3">
-                            <label for="listProducto" class="form-label">Producto <span class="required">*</span></label>
-                            <select class="form-select" id="listProducto" name="listProducto" required>
+                            <label for="listProducto" class="form-label">
+                                Producto <span class="required">*</span>
+                            </label>
+
+                            <select class="form-select"
+                                id="listProducto"
+                                name="listProducto"
+                                required>
+
                                 <option value="">Seleccione un producto...</option>
+
                             </select>
                         </div>
 
+                        <!-- SELECTOR DE LOTES -->
                         <div class="col-md-5 mb-3">
-                            <label for="listLote" class="form-label">Lote Disponible <span class="required">*</span></label>
-                            <select class="form-select" id="listLote" name="listLote" required disabled>
+                            <label for="listLote" class="form-label">
+                                Lote Disponible <span class="required">*</span>
+                            </label>
+
+                            <select class="form-select"
+                                id="listLote"
+                                name="listLote"
+                                required disabled>
+
                                 <option value="">Primero seleccione un producto...</option>
+
                             </select>
                         </div>
 
+                        <!-- CANTIDAD -->
                         <div class="col-md-2 mb-3">
-                            <label for="txtCantidad" class="form-label">Cantidad <span class="required">*</span></label>
-                            <input type="number" class="form-control" id="txtCantidad" name="txtCantidad" min="1" step="1" placeholder="0" required>
-                            <small id="helpStockDisponible" class="form-text text-primary fw-bold"></small>
+                            <label for="txtCantidad" class="form-label">
+                                Cantidad <span class="required">*</span>
+                            </label>
+
+                            <input type="number"
+                                class="form-control"
+                                id="txtCantidad"
+                                name="txtCantidad"
+                                min="1"
+                                step="1"
+                                placeholder="0"
+                                required>
+
+                            <small id="helpStockDisponible"
+                                class="form-text text-primary fw-bold">
+                            </small>
                         </div>
+
+                    </div>
+                    <!-- DATOS PARA CREAR NUEVO LOTE -->
+                    <div class="row d-none" id="divNuevoLote">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="txtCodigoLote" class="form-label">
+                                Código del nuevo lote
+                                <span class="required">*</span>
+                            </label>
+
+                            <input type="text"
+                                class="form-control"
+                                id="txtCodigoLote"
+                                name="txtCodigoLote"
+                                placeholder="Ej. LT-2026-001"
+                                disabled>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="txtFechaVencimiento" class="form-label">
+                                Fecha de vencimiento
+                            </label>
+
+                            <input type="date"
+                                class="form-control"
+                                id="txtFechaVencimiento"
+                                name="txtFechaVencimiento"
+                                disabled>
+                        </div>
+
                     </div>
 
                     <div class="row">
